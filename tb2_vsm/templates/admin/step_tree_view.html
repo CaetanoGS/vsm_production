@@ -1,0 +1,88 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Production Process Tree View</h1>
+
+<ul id="tree">
+    {% for location in locations %}
+        <li>
+            <span class="caret">🌍 {{ location.country.name }} ({{ location.supplier_name }})</span>
+            <ul class="nested">
+                {% for production in location.toniebox_productions.all %}
+                    <li>
+                        <span class="caret">📦 Production {{ production.id }}</span>
+                        <ul class="nested">
+                            <small>Total Operators: {{ production.total_operators }} |
+                                   Average Cycle Time: {{ production.average_cycle_time }}s |
+                                   Minimum Output/h: {{ production.minimum_output_per_hour }}</small>
+                            {% for process in production.processes.all %}
+                                <li>
+                                    <span class="caret">⚙️ {{ process.name }}</span>
+                                    <ul class="nested">
+                                        <small>Total Operators: {{ process.total_operators }} |
+                                               Average Cycle Time: {{ process.average_cycle_time }}s |
+                                               Minimum Output/h: {{ process.minimum_output_per_hour }}</small>
+                                        {% for step in process.steps.all %}
+                                            <li style="{% if step.cycle_time > production.average_cycle_time %}border: 2px solid red; padding: 5px; border-radius: 4px;{% endif %}">
+                                                🧩 <strong>{{ step.name }}</strong><br>
+                                                <small>Cycle Time: {{ step.cycle_time }}s, 
+                                                       Output/h: {{ step.output_per_hour }},
+                                                       Operators: {{ step.amount_of_operators }}</small>
+                                            </li>
+                                        {% empty %}
+                                            <li>No steps available.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% empty %}
+                                <li>No processes available.</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% empty %}
+                    <li>No productions available.</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+
+<style>
+    ul, #tree {
+        list-style-type: none;
+    }
+    .caret {
+        cursor: pointer;
+        user-select: none;
+    }
+    .caret::before {
+        content: "▶";
+        color: black;
+        display: inline-block;
+        margin-right: 6px;
+    }
+    .caret-down::before {
+        content: "▼";
+    }
+    .nested {
+        display: none;
+        padding-left: 20px;
+    }
+    .active {
+        display: block;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggles = document.querySelectorAll(".caret");
+        toggles.forEach(function (toggle) {
+            toggle.addEventListener("click", function () {
+                this.parentElement.querySelector(".nested").classList.toggle("active");
+                this.classList.toggle("caret-down");
+            });
+        });
+    });
+</script>
+
+{% endblock %}
