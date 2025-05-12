@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Value Stream Pyramid</title>
+    <style>
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .branch {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            position: relative;
+        }
+
+        .node {
+            background: #f0f4f8;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            min-width: 150px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .line-down {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #aaa;
+        }
+
+        .line-up {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #aaa;
+        }
+
+        .branch::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #aaa;
+        }
+
+        .branch > .node::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="tree">
+        <!-- Supplier -->
+        <div class="node">
+            HANSONG TECHNOLOGY (BAC NINH) CO., LTD<br><small>VN</small>
+            <div class="line-down"></div>
+        </div>
+
+        <!-- Productions -->
+        <div class="branch">
+            <div class="node">SMT</div>
+            <div class="node">Assembly</div>
+        </div>
+
+        <!-- Processes under SMT -->
+        <div class="branch">
+            <div class="node">PCBA<div class="line-down"></div></div>
+            <div class="node">PCBA Cutter<div class="line-down"></div></div>
+        </div>
+
+        <!-- Processes under Assembly -->
+        <div class="branch">
+            <div class="node">Assembly Stations</div>
+            <div class="node">Technical Refinement</div>
+            <div class="node">Provisioning</div>
+        </div>
+
+        <!-- Steps -->
+        <div class="branch">
+            <div class="node">MOP</div>
+            <div class="node">Identity Station</div>
+            <div class="node">Cleaning and Checking</div>
+            <div class="node">Final Check</div>
+        </div>
+
+        <!-- Final steps -->
+        <div class="branch">
+            <div class="node">Commissioning</div>
+            <div class="node">Packaging Station 1</div>
+            <div class="node">Packaging Station 2</div>
+            <div class="node">Commissioning Stations</div>
+        </div>
+    </div>
+</body>
+</html>

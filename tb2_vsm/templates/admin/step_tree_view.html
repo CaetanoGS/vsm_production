@@ -8,11 +8,11 @@
         <li>
             <span class="caret">🌍 {{ location.country.name }} ({{ location.supplier_name }})</span>
             <ul class="nested">
-                {% for production in location.toniebox_productions.all %}
+                {% for production in location.toniebox_productions.all|dictsort:"name" %}
                     <li>
-                        <span class="caret">📦 Production {{ production.id }}</span>
+                        <span class="caret">📦 Production {{ production.name }}</span>
                         <ul class="nested">
-                            <small>Total Operators: {{ production.total_operators }} |
+                            <small>Total Operators: {{ production.total_operators|default:0 }} |
                                    Average Cycle Time: {{ production.average_cycle_time }}s |
                                    Minimum Output/h: {{ production.minimum_output_per_hour }}</small>
                             {% for process in production.processes.all %}
@@ -22,7 +22,7 @@
                                         <small>Total Operators: {{ process.total_operators }} |
                                                Average Cycle Time: {{ process.average_cycle_time }}s |
                                                Minimum Output/h: {{ process.minimum_output_per_hour }}</small>
-                                        {% for step in process.steps.all %}
+                                        {% for step in process.steps.all|dictsort:"order" %}
                                             <li style="{% if step.cycle_time > production.average_cycle_time %}border: 2px solid red; padding: 5px; border-radius: 4px;{% endif %}">
                                                 🧩 <strong>{{ step.name }}</strong><br>
                                                 <small>Cycle Time: {{ step.cycle_time }}s, 
