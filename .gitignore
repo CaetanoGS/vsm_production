@@ -1,4 +1,4 @@
 venv/
-db.sqlite3
 vsm_tb/__pycache__/
 tb2_vsm/__pycache__/
+db.sqlite3
