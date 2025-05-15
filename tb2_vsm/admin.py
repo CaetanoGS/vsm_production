@@ -5,9 +5,12 @@ from .models import Step, Process, TonieboxProduction, Location
 
 from django.urls import path
 from django.template.response import TemplateResponse
-from django.utils.html import format_html
-from django.urls import reverse
 from .models import Location
+
+
+admin.site.site_header = "TB2 Production Administration"
+admin.site.site_title = "TB2 Production Admin Portal"
+admin.site.index_title = "TB2 Production Administration"
 
 @admin.register(Step)
 class StepAdmin(admin.ModelAdmin):
@@ -53,7 +56,7 @@ class StepAdmin(admin.ModelAdmin):
         context = dict(
             self.admin_site.each_context(request),
             locations=locations,
-            title='Value Stream Map (Lean Style)',
+            title='Production Structure',
         )
         return TemplateResponse(request, "admin/vsm_lean_view.html", context)
 

@@ -1,116 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Value Stream Pyramid</title>
-    <style>
-        .tree {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-        }
+{% extends "admin/base_site.html" %}
 
-        .branch {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            position: relative;
-        }
+{% block content %}
 
-        .node {
-            background: #f0f4f8;
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: 2px solid #ccc;
-            min-width: 150px;
-            text-align: center;
-            font-weight: bold;
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+<div class="zoom-controls">
+    <button onclick="zoomIn()">➕ Zoom In</button>
+    <button onclick="zoomOut()">➖ Zoom Out</button>
+    <button onclick="resetZoom()">🔄 Reset</button>
+</div>
 
-        .line-down {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            width: 2px;
-            height: 20px;
-            background: #aaa;
-        }
+<div class="mermaid-container" id="panContainer">
+    <div class="mermaid-wrapper" id="mermaidWrapper">
+        <div class="mermaid">
+        graph TD
+        {% for location in locations %}
+            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
+            {% for production in location.toniebox_productions.all %}
+                PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{ production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{ production.minimum_output_per_hour }}</small>"]
+                LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
-        .line-up {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            width: 2px;
-            height: 20px;
-            background: #aaa;
-        }
+                {% for process in production.processes.all %}
+                    PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️ {{ process.name }}<br><small>Operators: {{ process.total_operators }}, CT: {{ process.average_cycle_time }}s, Min Out/h: {{ process.minimum_output_per_hour }}</small>"]
+                    PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
-        .branch::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #aaa;
-        }
-
-        .branch > .node::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            width: 2px;
-            height: 20px;
-            background: #aaa;
-        }
-    </style>
-</head>
-<body>
-    <div class="tree">
-        <!-- Supplier -->
-        <div class="node">
-            HANSONG TECHNOLOGY (BAC NINH) CO., LTD<br><small>VN</small>
-            <div class="line-down"></div>
-        </div>
-
-        <!-- Productions -->
-        <div class="branch">
-            <div class="node">SMT</div>
-            <div class="node">Assembly</div>
-        </div>
-
-        <!-- Processes under SMT -->
-        <div class="branch">
-            <div class="node">PCBA<div class="line-down"></div></div>
-            <div class="node">PCBA Cutter<div class="line-down"></div></div>
-        </div>
-
-        <!-- Processes under Assembly -->
-        <div class="branch">
-            <div class="node">Assembly Stations</div>
-            <div class="node">Technical Refinement</div>
-            <div class="node">Provisioning</div>
-        </div>
-
-        <!-- Steps -->
-        <div class="branch">
-            <div class="node">MOP</div>
-            <div class="node">Identity Station</div>
-            <div class="node">Cleaning and Checking</div>
-            <div class="node">Final Check</div>
-        </div>
-
-        <!-- Final steps -->
-        <div class="branch">
-            <div class="node">Commissioning</div>
-            <div class="node">Packaging Station 1</div>
-            <div class="node">Packaging Station 2</div>
-            <div class="node">Commissioning Stations</div>
+                    {% for step in process.steps.all %}
+                        STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}<br><small>CT: {{ step.cycle_time }}s<br>Out/h: {{ step.output_per_hour }}<br>Ops: {{ step.amount_of_operators }}</small>{% if step.cycle_time > production.average_cycle_time %}<br><strong style='color:red;'>⚠️ High CT</strong>{% endif %}"]
+                        PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+                    {% empty %}
+                        PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️ {{ process.name }}<br><i>No steps available</i>"]
+                    {% endfor %}
+                {% empty %}
+                    PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes available</i>"]
+                {% endfor %}
+            {% empty %}
+                LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
+            {% endfor %}
+        {% endfor %}
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<!-- Mermaid JS -->
+<script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true });
+</script>
+
+<!-- Zoom and Drag Logic -->
+<script>
+    let scale = 1;
+    const zoomStep = 3;
+    const wrapper = document.getElementById('mermaidWrapper');
+    const panContainer = document.getElementById('panContainer');
+
+    function setZoom() {
+        wrapper.style.transform = `scale(${scale})`;
+    }
+
+    function zoomIn() {
+        scale += zoomStep;
+        setZoom();
+    }
+
+    function zoomOut() {
+        scale = Math.max(zoomStep, scale - zoomStep);
+        setZoom();
+    }
+
+    function resetZoom() {
+        scale = 1;
+        setZoom();
+        wrapper.style.left = '0px';
+        wrapper.style.top = '0px';
+    }
+
+    // Dragging
+    let isDragging = false;
+    let startX, startY, initialLeft, initialTop;
+
+    panContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = wrapper.getBoundingClientRect();
+        initialLeft = rect.left - panContainer.getBoundingClientRect().left;
+        initialTop = rect.top - panContainer.getBoundingClientRect().top;
+        panContainer.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        wrapper.style.position = 'absolute';
+        wrapper.style.left = `${initialLeft + dx}px`;
+        wrapper.style.top = `${initialTop + dy}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        panContainer.style.cursor = 'default';
+    });
+</script>
+
+<!-- Styles -->
+<style>
+    .mermaid-container {
+        overflow: hidden;
+        position: relative;
+        border: 1px solid #ccc;
+        height: 80vh;
+        background: #f9f9f9;
+        cursor: grab;
+    }
+
+    .mermaid-wrapper {
+        transform-origin: 0 0;
+        transition: transform 0.2s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .mermaid {
+        font-size: 12px;
+        min-width: 1000px;
+    }
+
+    .zoom-controls {
+        margin-bottom: 1rem;
+    }
+
+    .zoom-controls button {
+        margin-right: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        background-color: #1d72b8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .zoom-controls button:hover {
+        background-color: #155d8b;
+    }
+</style>
+
+{% endblock %}

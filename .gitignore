@@ -1,1 +1,3 @@
 venv/
+db.sqlite3
+tb2_vsm/__pycache__/
