@@ -1,9 +1,85 @@
 {% extends "admin/base_site.html" %}
 
+{% block title %}Toniebox Production Admin{% endblock %}
+
 {% block content %}
-<h1>Admin Dashboard</h1>
-<p>Welcome to the admin dashboard. Click below to view the production process tree view:</p>
-<a href="/admin/tb2_vsm/step/step-tree-view/"  target="_blank" class="btn btn-primary">Go to Step Tree View</a>
-<br>
-<a href="/admin/tb2_vsm/step/vsm-lean-view/"  target="_blank" class="btn btn-primary">Go to Diagram View</a>
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+
+    .tonies-dashboard {
+        text-align: center;
+        background-color: #fff;
+        padding: 40px;
+        margin: 40px auto;
+        max-width: 900px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    .tonies-dashboard img {
+        max-width: 160px;
+        margin-bottom: 25px;
+    }
+
+    .tonies-dashboard h1 {
+        font-size: 2.8em;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .tonies-dashboard p {
+        font-size: 1.2em;
+        color: #666;
+        margin-bottom: 35px;
+    }
+
+    .tonies-dashboard .btn-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .tonies-dashboard .btn {
+        display: inline-block;
+        padding: 14px 28px;
+        font-size: 1.1em;
+        border-radius: 8px;
+        text-decoration: none;
+        background-color: #e20613; /* Tonies red */
+        color: white;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        font-weight: bold;
+    }
+
+    .tonies-dashboard .btn:hover {
+        background-color: #c80010;
+        transform: scale(1.03);
+    }
+
+    .author {
+        margin-top: 50px;
+        font-size: 0.9em;
+        color: #aaa;
+    }
+</style>
+
+<div class="tonies-dashboard">
+    <img src="/static/img/tonies-logo.png" alt="Toniebox Logo" />
+
+    <h1>Welcome to Toniebox Production Admin</h1>
+    <p>Visualize and manage your production processes. Select a view below to get started:</p>
+
+    <div class="btn-container">
+        <a href="{% url 'admin:step-tree-view' %}" class="btn" target="_blank">📊 Step Tree View</a>
+        <a href="{% url 'admin:vsm-lean-view' %}" class="btn" target="_blank">📈 VSM Diagram View</a>
+    </div>
+
+    <div class="author">
+        Author: Gustavo Caetano de Souza
+    </div>
+</div>
 {% endblock %}
