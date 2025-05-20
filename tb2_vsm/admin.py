@@ -6,15 +6,33 @@ from .models import Step, Process, TonieboxProduction, Location
 from django.urls import path
 from django.template.response import TemplateResponse
 from .models import Location
+from django.utils.html import format_html
+from django.urls import reverse
+from django.db.models import Avg, Min, Max, Sum, F, FloatField
 
 
 admin.site.site_header = "TB2 Production Administration"
 admin.site.site_title = "TB2 Production Admin Portal"
 admin.site.index_title = "TB2 Production Administration"
 
+
+
 @admin.register(Step)
 class StepAdmin(admin.ModelAdmin):
-    list_display = ['name', 'cycle_time', 'amount_of_operators', 'output_per_hour', 'order']
+    list_display = [
+        'name', 
+        'cycle_time', 
+        'amount_of_operators', 
+        'output_per_hour', 
+        'order', 
+        'process_name',
+    ]
+    list_filter = ['process']
+
+    def process_name(self, obj):
+        return obj.process.name if obj.process else '-'
+    
+    process_name.short_description = 'Process'
 
     def get_urls(self):
         urls = super().get_urls()
@@ -64,11 +82,83 @@ class StepAdmin(admin.ModelAdmin):
 
 @admin.register(TonieboxProduction)
 class TonieboxProductionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'location']
-    filter_horizontal = ('processes',)  # This should work now, as processes is ManyToMany
+    list_display = ['id', 'name', 'location']
+    list_filter = ['location']
+    filter_horizontal = ('processes',)
 
 @admin.register(Process)
 class ProcessAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'production_lines']
+    list_filter = ['toniebox_productions']
 
-admin.site.register(Location)
+    def production_lines(self, obj):
+        links = []
+        for prod in obj.toniebox_productions.all():
+            url = reverse('admin:tb2_vsm_tonieboxproduction_change', args=[prod.id])
+            name = prod.name or f"Production {prod.id}"
+            links.append(f'<a href="{url}">{name}</a>')
+        return format_html(", ".join(links))
+
+    production_lines.short_description = "Production Lines"
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = [
+        'supplier_name', 'country',
+        'production_lines_count',
+        'total_operators',
+        'average_cycle_time',
+        'min_output_per_hour',
+        'max_output_per_hour',
+    ]
+    list_filter = ['country']
+
+    def production_lines_count(self, obj):
+        return obj.toniebox_productions.count()
+    production_lines_count.short_description = "Production Lines"
+
+    def total_operators(self, obj):
+        # Sum all operators from steps in all processes in all productions at this location
+        total = 0
+        for production in obj.toniebox_productions.all():
+            total += production.total_operators()
+        return total
+    total_operators.short_description = "Total Operators"
+
+    def average_cycle_time(self, obj):
+        # Average cycle time across all steps in all processes of all productions at this location
+        cycle_times = []
+        for production in obj.toniebox_productions.all():
+            for process in production.processes.all():
+                for step in process.steps.all():
+                    if step.cycle_time is not None:
+                        cycle_times.append(float(step.cycle_time))
+        if cycle_times:
+            avg = round(sum(cycle_times) / len(cycle_times), 2)
+            return avg
+        return '-'
+    average_cycle_time.short_description = "Average Cycle Time (s)"
+
+    def min_output_per_hour(self, obj):
+        outputs = []
+        for production in obj.toniebox_productions.all():
+            for process in production.processes.all():
+                for step in process.steps.all():
+                    if step.output_per_hour is not None:
+                        outputs.append(float(step.output_per_hour))
+        if outputs:
+            return min(outputs)
+        return '-'
+    min_output_per_hour.short_description = "Min Output / Hour"
+
+    def max_output_per_hour(self, obj):
+        outputs = []
+        for production in obj.toniebox_productions.all():
+            for process in production.processes.all():
+                for step in process.steps.all():
+                    if step.output_per_hour is not None:
+                        outputs.append(float(step.output_per_hour))
+        if outputs:
+            return max(outputs)
+        return '-'
+    max_output_per_hour.short_description = "Max Output / Hour"
