@@ -127,7 +127,7 @@ class LocationAdmin(admin.ModelAdmin):
     factory_clouds_counts.short_description = "Factory Clouds"
 
     def is_there_factory_cloud_count(self, obj):
-        return obj.factory_cloud is not None
+        return obj.factory_clouds.exists()
     is_there_factory_cloud_count.boolean = True
     is_there_factory_cloud_count.short_description = "Has Factory Cloud"
 
