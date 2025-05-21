@@ -117,9 +117,6 @@ class LocationAdmin(admin.ModelAdmin):
         'factory_clouds_counts',
         'is_there_factory_cloud_count',
         'total_operators',
-        'average_cycle_time',
-        'min_output_per_hour',
-        'max_output_per_hour',
         'active',
     ]
     list_filter = ['country']
@@ -168,43 +165,6 @@ class LocationAdmin(admin.ModelAdmin):
             total += production.total_operators()
         return total
     total_operators.short_description = "Total Operators"
-
-    def average_cycle_time(self, obj):
-        cycle_times = []
-        for production in obj.toniebox_productions.all():
-            for process in production.processes.all():
-                for step in process.steps.all():
-                    if step.cycle_time is not None:
-                        cycle_times.append(float(step.cycle_time))
-        if cycle_times:
-            avg = round(sum(cycle_times) / len(cycle_times), 2)
-            return avg
-        return '-'
-    average_cycle_time.short_description = "Average Cycle Time (s)"
-
-    def min_output_per_hour(self, obj):
-        outputs = []
-        for production in obj.toniebox_productions.all():
-            for process in production.processes.all():
-                for step in process.steps.all():
-                    if step.output_per_hour is not None:
-                        outputs.append(float(step.output_per_hour))
-        if outputs:
-            return min(outputs)
-        return '-'
-    min_output_per_hour.short_description = "Min Output / Hour"
-
-    def max_output_per_hour(self, obj):
-        outputs = []
-        for production in obj.toniebox_productions.all():
-            for process in production.processes.all():
-                for step in process.steps.all():
-                    if step.output_per_hour is not None:
-                        outputs.append(float(step.output_per_hour))
-        if outputs:
-            return max(outputs)
-        return '-'
-    max_output_per_hour.short_description = "Max Output / Hour"
 
 
 @admin.register(FactoryCloud)
