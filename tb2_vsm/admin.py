@@ -112,18 +112,19 @@ class LocationAdmin(admin.ModelAdmin):
         'average_cycle_time',
         'min_output_per_hour',
         'max_output_per_hour',
-        'factory_cloud_count',
+        'factory_clouds_counts',
+        'is_there_factory_cloud_count',
     ]
     list_filter = ['country']
 
-    def production_lines_count(self, obj):
-        return obj.toniebox_productions.count()
-    production_lines_count.short_description = "Production Lines"
+    def factory_clouds_counts(self, obj):
+        return obj.factory_clouds.count()
+    factory_clouds_counts.short_description = "Factory Clouds"
 
-    def factory_cloud_count(self, obj):
+    def is_there_factory_cloud_count(self, obj):
         return obj.factory_cloud is not None
-    factory_cloud_count.boolean = True
-    factory_cloud_count.short_description = "Has Factory Cloud"
+    is_there_factory_cloud_count.boolean = True
+    is_there_factory_cloud_count.short_description = "Has Factory Cloud"
 
     def total_operators(self, obj):
         # Sum all operators from steps in all processes in all productions at this location
@@ -174,19 +175,19 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(FactoryCloud)
 class FactoryCloudAdmin(admin.ModelAdmin):
-    list_display = ['fc_id', 'name', 'location', 'url_link', 'linked_production_lines']
-    list_filter = ['location']
+    list_display = ['fc_id', 'name', 'url_link', 'location', 'is_backup', 'linked_production_lines']
+    list_filter = ['location', 'is_backup']
     search_fields = ['fc_id', 'name']
 
     def url_link(self, obj):
-        return format_html('<a href="{0}" target="_blank">{0}</a>', obj.url)
+        return format_html(f'<a href="{obj.url}" target="_blank">{obj.url}</a>')
     url_link.short_description = "URL"
 
     def linked_production_lines(self, obj):
         links = []
-        for line in obj.production_lines.all():
-            url = reverse('admin:tb2_vsm_tonieboxproduction_change', args=[line.id])
-            name = line.name or f"Line {line.id}"
+        for prod in obj.production_lines.all():
+            url = reverse('admin:tb2_vsm_tonieboxproduction_change', args=[prod.id])
+            name = prod.name or f"Production {prod.id}"
             links.append(f'<a href="{url}">{name}</a>')
-        return format_html(", ".join(links))
+        return format_html(", ".join(links)) if links else "-"
     linked_production_lines.short_description = "Production Lines"

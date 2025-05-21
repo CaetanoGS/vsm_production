@@ -114,8 +114,9 @@ class FactoryCloud(models.Model):
     fc_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255, blank=True)
     url = models.URLField()
-    location = models.OneToOneField('Location', on_delete=models.CASCADE, related_name='factory_cloud')
-    production_lines = models.ManyToManyField('TonieboxProduction', related_name='factory_clouds')
+    location = models.ForeignKey('Location', on_delete=models.CASCADE, related_name='factory_clouds')  # Changed to ForeignKey
+    production_lines = models.ManyToManyField('TonieboxProduction', related_name='factory_clouds', blank=True)  # Made optional
+    is_backup = models.BooleanField(default=False)  # Backup assignment
 
     def save(self, *args, **kwargs):
         if not self.name:
