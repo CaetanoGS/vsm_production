@@ -43,6 +43,7 @@ class StepAdmin(admin.ModelAdmin):
         custom_urls = [
             path('step-tree-view/', self.admin_site.admin_view(self.step_tree_view), name='step-tree-view'),
             path('vsm-lean-view/', self.admin_site.admin_view(self.vsm_lean_view), name='vsm-lean-view'),
+            path('vsm-lean-tonies-view/', self.admin_site.admin_view(self.vsm_lean_view), name='vsm-lean-tonies-view'),
         ]
         return custom_urls + urls
 
@@ -87,6 +88,24 @@ class StepAdmin(admin.ModelAdmin):
             title='Production Structure',
         )
         return TemplateResponse(request, "admin/vsm_lean_view.html", context)
+    
+    def vsm_lean_view_tonies(self, request):
+        toniebox_productions = TonieboxProduction.objects.filter(
+            category__in=["Tonies"]
+        ).prefetch_related('processes__steps')
+
+        locations = Location.objects.prefetch_related(
+            Prefetch('toniebox_productions', queryset=toniebox_productions, to_attr='filtered_productions')
+        ).filter(
+            toniebox_productions__category__in=["Tonies"]
+        ).distinct()
+
+        context = dict(
+            self.admin_site.each_context(request),
+            locations=locations,
+            title='Production Structure',
+        )
+        return TemplateResponse(request, "admin/vsm_lean_view_tonies.html", context)
 
 
 
