@@ -118,6 +118,10 @@ class LocationAdmin(admin.ModelAdmin):
     ]
     list_filter = ['country']
 
+    def production_lines_count(self, obj):
+        return obj.toniebox_productions.count()
+    production_lines_count.short_description = "Production Lines"
+
     def factory_clouds_counts(self, obj):
         return obj.factory_clouds.count()
     factory_clouds_counts.short_description = "Factory Clouds"
@@ -128,7 +132,6 @@ class LocationAdmin(admin.ModelAdmin):
     is_there_factory_cloud_count.short_description = "Has Factory Cloud"
 
     def total_operators(self, obj):
-        # Sum all operators from steps in all processes in all productions at this location
         total = 0
         for production in obj.toniebox_productions.all():
             total += production.total_operators()
@@ -136,7 +139,6 @@ class LocationAdmin(admin.ModelAdmin):
     total_operators.short_description = "Total Operators"
 
     def average_cycle_time(self, obj):
-        # Average cycle time across all steps in all processes of all productions at this location
         cycle_times = []
         for production in obj.toniebox_productions.all():
             for process in production.processes.all():
