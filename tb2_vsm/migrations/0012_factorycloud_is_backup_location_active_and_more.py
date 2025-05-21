@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0011_update_existing_equipment'),
+        ('tb2_vsm', '0010_factorycloud'),
     ]
 
     operations = [
