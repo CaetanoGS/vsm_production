@@ -51,6 +51,10 @@ class TonieboxProduction(models.Model):
         steps = [step for process in self.processes.all() for step in process.steps.all()]
         output_per_hour = [step.output_per_hour for step in steps if step.output_per_hour is not None]
         return min(output_per_hour) if output_per_hour else 0
+    
+    class Meta:
+        verbose_name = "PSM Production"
+        verbose_name_plural = "PSM Productions"
 
 
 class Process(models.Model):
