@@ -30,6 +30,7 @@ class StepAdmin(admin.ModelAdmin):
         'process_name',
     ]
     list_filter = ['process']
+    exclude = ['output_per_hour']
 
     def process_name(self, obj):
         return obj.process.name if obj.process else '-'
@@ -178,6 +179,7 @@ class FactoryCloudAdmin(admin.ModelAdmin):
     list_display = ['fc_id', 'name', 'url_link', 'location', 'is_backup', 'linked_production_lines']
     list_filter = ['location', 'is_backup']
     search_fields = ['fc_id', 'name']
+    exclude = ['name']
 
     def url_link(self, obj):
         return format_html(f'<a href="{obj.url}" target="_blank">{obj.url}</a>')
