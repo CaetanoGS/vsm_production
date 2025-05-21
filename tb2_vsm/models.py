@@ -27,7 +27,11 @@ class TonieboxProduction(models.Model):
         related_name='toniebox_productions',
         blank=True,
     )
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    category = models.CharField(
+        max_length=20,
+        choices=[("Toniebox 1", "Toniebox 1"), ("Toniebox 2", "Toniebox 2")],
+        default="Toniebox 2"
+    )   
     active = models.BooleanField(default=True)
 
     def __str__(self):
