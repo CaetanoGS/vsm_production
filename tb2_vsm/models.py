@@ -19,6 +19,7 @@ class TonieboxProduction(models.Model):
         related_name='toniebox_productions',
         blank=True,
     )
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name or f"Toniebox Production {self.id}"  # Updated to show name if available
@@ -105,6 +106,7 @@ class Location(models.Model):
         related_name='locations',  # Reverse relationship to access locations from TonieboxProduction
         default=None  # Default value when no TonieboxProduction is assigned
     )
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.supplier_name} ({self.country})"
@@ -125,3 +127,34 @@ class FactoryCloud(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Equipment(models.Model):
+    LASER_MARKER = 'Laser Marker'
+    COMPUTER = 'Computer'
+    SDR = 'SDR'
+    PRINTER = 'Printer'
+    USB_HUB = 'USB-Hub'
+    JIG = 'JIG'
+    OTHER = 'Other'
+
+
+    CATEGORY_CHOICES = [
+        (LASER_MARKER, 'Laser Marker'),
+        (COMPUTER, 'Computer'),
+        (SDR, 'SDR'),
+        (PRINTER, 'Printer'),
+        (USB_HUB, 'USB-Hub'),
+        (JIG, 'JIG'),
+        (OTHER, 'Other'),
+    ]
+
+    serial_number = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    backup = models.BooleanField(default=False)
+
+    location = models.ForeignKey('Location', on_delete=models.CASCADE, related_name='equipments')
+
+    def __str__(self):
+        return f"{self.name or self.category} ({self.serial_number or 'No Serial'})"

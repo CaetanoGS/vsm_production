@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.template.response import TemplateResponse
-from .models import Step, Process, TonieboxProduction, Location
+from .models import Step, Process, TonieboxProduction, Location, FactoryCloud, Equipment
 
 from django.urls import path
 from django.template.response import TemplateResponse
@@ -9,7 +9,6 @@ from .models import Location
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Avg, Min, Max, Sum, F, FloatField
-from .models import FactoryCloud
 
 
 
@@ -85,7 +84,7 @@ class StepAdmin(admin.ModelAdmin):
 
 @admin.register(TonieboxProduction)
 class TonieboxProductionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'location']
+    list_display = ['id', 'name', 'location', 'active', ]
     list_filter = ['location']
     filter_horizontal = ('processes',)
 
@@ -109,18 +108,30 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = [
         'supplier_name', 'country',
         'production_lines_count',
+        'active_production_lines_count',
+        'inactive_production_lines_count',
+        'factory_clouds_counts',
+        'is_there_factory_cloud_count',
         'total_operators',
         'average_cycle_time',
         'min_output_per_hour',
         'max_output_per_hour',
-        'factory_clouds_counts',
-        'is_there_factory_cloud_count',
+        'active',
     ]
     list_filter = ['country']
 
     def production_lines_count(self, obj):
         return obj.toniebox_productions.count()
     production_lines_count.short_description = "Production Lines"
+
+    def active_production_lines_count(self, obj):
+        return obj.toniebox_productions.filter(active=True).count()
+    active_production_lines_count.short_description = "Active Production Lines"
+
+    def inactive_production_lines_count(self, obj):
+        return obj.toniebox_productions.filter(active=False).count()
+    inactive_production_lines_count.short_description = "Inactive Production Lines"
+
 
     def factory_clouds_counts(self, obj):
         return obj.factory_clouds.count()
@@ -195,3 +206,10 @@ class FactoryCloudAdmin(admin.ModelAdmin):
             links.append(f'<a href="{url}">{name}</a>')
         return format_html(", ".join(links)) if links else "-"
     linked_production_lines.short_description = "Production Lines"
+
+
+@admin.register(Equipment)
+class EquipmentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'serial_number', 'category', 'name', 'location']
+    list_filter = ['location', 'category']
+    search_fields = ['serial_number', 'name']
