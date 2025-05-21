@@ -9,6 +9,8 @@ from .models import Location
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Avg, Min, Max, Sum, F, FloatField
+from django.db.models import Prefetch, Q
+
 
 
 
@@ -69,9 +71,15 @@ class StepAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/step_tree_view.html", context)
 
     def vsm_lean_view(self, request):
+        toniebox_productions = PSMProduction.objects.filter(
+            category__in=["Toniebox 1", "Toniebox 2"]
+        ).prefetch_related('processes__steps')
+
         locations = Location.objects.prefetch_related(
-            'toniebox_productions__processes__steps'
-        ).all()
+            Prefetch('toniebox_productions', queryset=toniebox_productions, to_attr='filtered_productions')
+        ).filter(
+            toniebox_productions__category__in=["Toniebox 1", "Toniebox 2"]
+        ).distinct()
 
         context = dict(
             self.admin_site.each_context(request),
