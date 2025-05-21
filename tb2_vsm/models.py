@@ -6,9 +6,11 @@ class TonieboxProduction(models.Model):
 
     TONIEBOX_1 = 'Toniebox 1'
     TONIEBOX_2 = 'Toniebox 2'
+    TONIES = 'Tonies'
     CATEGORY_CHOICES = [
         (TONIEBOX_1, 'Toniebox 1'),
         (TONIEBOX_2, 'Toniebox 2'),
+        (TONIES, 'Tonies 2'),
     ]
 
     
@@ -91,7 +93,7 @@ class Step(models.Model):
         related_name='steps',
         default=None
     )
-    
+
     class Meta:
         ordering = ['order']
 
