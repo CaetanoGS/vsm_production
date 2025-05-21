@@ -43,7 +43,7 @@ class StepAdmin(admin.ModelAdmin):
         custom_urls = [
             path('step-tree-view/', self.admin_site.admin_view(self.step_tree_view), name='step-tree-view'),
             path('vsm-lean-view/', self.admin_site.admin_view(self.vsm_lean_view), name='vsm-lean-view'),
-            path('vsm-lean-tonies-view/', self.admin_site.admin_view(self.vsm_lean_view), name='vsm-lean-tonies-view'),
+            path('vsm-lean-tonies-view/', self.admin_site.admin_view(self.vsm_lean_view_tonies), name='vsm-lean-tonies-view'),
         ]
         return custom_urls + urls
 
