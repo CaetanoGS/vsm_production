@@ -169,5 +169,11 @@ class Equipment(models.Model):
 
     location = models.ForeignKey('Location', on_delete=models.CASCADE, related_name='equipments')
 
+    active = models.BooleanField(default=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        self.active = not self.back
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.name or self.category} ({self.serial_number or 'No Serial'})"

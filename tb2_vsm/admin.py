@@ -190,6 +190,6 @@ class FactoryCloudAdmin(admin.ModelAdmin):
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'serial_number', 'category', 'name', 'location','backup']
-    list_filter = ['location', 'category', 'backup']
-    search_fields = ['serial_number', 'name']
+    list_display = ['id', 'serial_number', 'category', 'name', 'location','backup', 'active']
+    list_filter = ['location', 'category', 'backup', 'active']
+    search_fields = ['serial_number', 'name', 'active']
