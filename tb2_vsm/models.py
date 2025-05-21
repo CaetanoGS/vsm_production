@@ -29,9 +29,9 @@ class TonieboxProduction(models.Model):
     )
     category = models.CharField(
         max_length=20,
-        choices=[("Toniebox 1", "Toniebox 1"), ("Toniebox 2", "Toniebox 2")],
-        default="Toniebox 2"
-    )   
+        choices=CATEGORY_CHOICES,
+        default=TONIEBOX_2
+    ) 
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -91,6 +91,9 @@ class Step(models.Model):
         related_name='steps',
         default=None
     )
+    
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return self.name or "Unnamed Step"
@@ -172,7 +175,7 @@ class Equipment(models.Model):
     active = models.BooleanField(default=True, editable=False)
 
     def save(self, *args, **kwargs):
-        self.active = not self.back
+        self.active = not self.backup
         super().save(*args, **kwargs)
 
     def __str__(self):
