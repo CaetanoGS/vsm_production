@@ -108,3 +108,19 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.supplier_name} ({self.country})"
+
+
+class FactoryCloud(models.Model):
+    fc_id = models.IntegerField(unique=True)
+    name = models.CharField(max_length=255, blank=True)
+    url = models.URLField()
+    location = models.OneToOneField('Location', on_delete=models.CASCADE, related_name='factory_cloud')
+    production_lines = models.ManyToManyField('TonieboxProduction', related_name='factory_clouds')
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = f"Factory Cloud {self.fc_id}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name

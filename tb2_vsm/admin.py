@@ -9,6 +9,8 @@ from .models import Location
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Avg, Min, Max, Sum, F, FloatField
+from .models import FactoryCloud
+
 
 
 admin.site.site_header = "TB2 Production Administration"
@@ -110,12 +112,18 @@ class LocationAdmin(admin.ModelAdmin):
         'average_cycle_time',
         'min_output_per_hour',
         'max_output_per_hour',
+        'factory_cloud_count',
     ]
     list_filter = ['country']
 
     def production_lines_count(self, obj):
         return obj.toniebox_productions.count()
     production_lines_count.short_description = "Production Lines"
+
+    def factory_cloud_count(self, obj):
+        return obj.factory_cloud is not None
+    factory_cloud_count.boolean = True
+    factory_cloud_count.short_description = "Has Factory Cloud"
 
     def total_operators(self, obj):
         # Sum all operators from steps in all processes in all productions at this location
@@ -162,3 +170,23 @@ class LocationAdmin(admin.ModelAdmin):
             return max(outputs)
         return '-'
     max_output_per_hour.short_description = "Max Output / Hour"
+
+
+@admin.register(FactoryCloud)
+class FactoryCloudAdmin(admin.ModelAdmin):
+    list_display = ['fc_id', 'name', 'location', 'url_link', 'linked_production_lines']
+    list_filter = ['location']
+    search_fields = ['fc_id', 'name']
+
+    def url_link(self, obj):
+        return format_html('<a href="{0}" target="_blank">{0}</a>', obj.url)
+    url_link.short_description = "URL"
+
+    def linked_production_lines(self, obj):
+        links = []
+        for line in obj.production_lines.all():
+            url = reverse('admin:tb2_vsm_tonieboxproduction_change', args=[line.id])
+            name = line.name or f"Line {line.id}"
+            links.append(f'<a href="{url}">{name}</a>')
+        return format_html(", ".join(links))
+    linked_production_lines.short_description = "Production Lines"
