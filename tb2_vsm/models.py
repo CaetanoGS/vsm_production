@@ -10,7 +10,7 @@ class TonieboxProduction(models.Model):
     CATEGORY_CHOICES = [
         (TONIEBOX_1, 'Toniebox 1'),
         (TONIEBOX_2, 'Toniebox 2'),
-        (TONIES, 'Tonies 2'),
+        (TONIES, 'Tonies'),
     ]
 
     
