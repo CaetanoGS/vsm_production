@@ -13,7 +13,6 @@
         <div class="mermaid">
         graph TD
         {% for location in locations %}
-            {% if location.active and location.toniebox_production and location.toniebox_production.active %}
                 LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
                 {% for production in location.toniebox_productions.all %}
                     PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{ production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{ production.minimum_output_per_hour }}</small>"]
@@ -35,7 +34,6 @@
                 {% empty %}
                     LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
                 {% endfor %}
-                {% endif %}
         {% endfor %}
         </div>
     </div>
