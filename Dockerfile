@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # Install system dependencies needed for postgres client and networking
-RUN apt-get update && apt-get install -y netcat gcc libpq-dev && apt-get clean
+RUN apt-get update && apt-get install -y netcat-openbsd gcc libpq-dev && apt-get clean
 
 # Copy and install Python dependencies
 COPY requirements.txt .
