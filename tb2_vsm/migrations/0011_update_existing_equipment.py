@@ -14,7 +14,7 @@ def update_equipment_active_status(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('your_app_label', 'previous_migration'),
+        ('tb2_vsm', '0010_factorycloud'),
     ]
 
     operations = [
