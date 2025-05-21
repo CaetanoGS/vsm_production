@@ -15,22 +15,23 @@
         {% for location in locations %}
                 LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
                 {% for production in location.toniebox_productions.all %}
-                    PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{ production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{ production.minimum_output_per_hour }}</small>"]
-                    LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+                    {% if production.category == "Toniebox 1" or production.category == "Toniebox 2" %}
+                        PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{ production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{ production.minimum_output_per_hour }}</small>"]
+                        LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+                        {% for process in production.processes.all %}
+                            PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️ {{ process.name }}<br><small>Operators: {{ process.total_operators }}, CT: {{ process.average_cycle_time }}s, Min Out/h: {{ process.minimum_output_per_hour }}</small>"]
+                            PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
-                    {% for process in production.processes.all %}
-                        PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️ {{ process.name }}<br><small>Operators: {{ process.total_operators }}, CT: {{ process.average_cycle_time }}s, Min Out/h: {{ process.minimum_output_per_hour }}</small>"]
-                        PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
-
-                        {% for step in process.steps.all %}
-                            STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}<br><small>CT: {{ step.cycle_time }}s<br>Out/h: {{ step.output_per_hour }}<br>Ops: {{ step.amount_of_operators }}</small>{% if step.cycle_time > production.average_cycle_time %}<br><strong style='color:red;'>⚠️ High CT</strong>{% endif %}"]
-                            PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+                            {% for step in process.steps.all %}
+                                STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}<br><small>CT: {{ step.cycle_time }}s<br>Out/h: {{ step.output_per_hour }}<br>Ops: {{ step.amount_of_operators }}</small>{% if step.cycle_time > production.average_cycle_time %}<br><strong style='color:red;'>⚠️ High CT</strong>{% endif %}"]
+                                PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+                            {% empty %}
+                                PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️ {{ process.name }}<br><i>No steps available</i>"]
+                            {% endfor %}
                         {% empty %}
-                            PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️ {{ process.name }}<br><i>No steps available</i>"]
+                            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes available</i>"]
                         {% endfor %}
-                    {% empty %}
-                        PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes available</i>"]
-                    {% endfor %}
+                    {% endif %}
                 {% empty %}
                     LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
                 {% endfor %}
