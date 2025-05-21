@@ -25,4 +25,4 @@ class BackupEquipment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.name} ({self.location.name})"
+        return f"{self.name} ({self.location.supplier_name})"
