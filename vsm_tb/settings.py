@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tb2_vsm',
     'django_countries',
+    'spare_parts_management',
 ]
 
 MIDDLEWARE = [
