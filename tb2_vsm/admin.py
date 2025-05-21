@@ -84,8 +84,8 @@ class StepAdmin(admin.ModelAdmin):
 
 @admin.register(TonieboxProduction)
 class TonieboxProductionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'location', 'active', ]
-    list_filter = ['location']
+    list_display = ['id', 'name', 'location', 'active', 'category',]
+    list_filter = ['location', 'category']
     filter_horizontal = ('processes',)
 
 @admin.register(Process)
@@ -108,8 +108,12 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = [
         'supplier_name', 'country',
         'production_lines_count',
-        'active_production_lines_count',
-        'inactive_production_lines_count',
+        'toniebox_1_production_lines_count',
+        'toniebox_1_active_count',
+        'toniebox_1_inactive_count',
+        'toniebox_2_production_lines_count',
+        'toniebox_2_active_count',
+        'toniebox_2_inactive_count',
         'factory_clouds_counts',
         'is_there_factory_cloud_count',
         'total_operators',
@@ -124,13 +128,29 @@ class LocationAdmin(admin.ModelAdmin):
         return obj.toniebox_productions.count()
     production_lines_count.short_description = "Production Lines"
 
-    def active_production_lines_count(self, obj):
-        return obj.toniebox_productions.filter(active=True).count()
-    active_production_lines_count.short_description = "Active Production Lines"
+    def toniebox_1_production_lines_count(self, obj):
+        return obj.toniebox_productions.filter(category=TonieboxProduction.TONIEBOX_1).count()
+    toniebox_1_production_lines_count.short_description = "Toniebox 1 Production Lines"
 
-    def inactive_production_lines_count(self, obj):
-        return obj.toniebox_productions.filter(active=False).count()
-    inactive_production_lines_count.short_description = "Inactive Production Lines"
+    def toniebox_1_active_count(self, obj):
+        return obj.toniebox_productions.filter(category=TonieboxProduction.TONIEBOX_1, active=True).count()
+    toniebox_1_active_count.short_description = "Toniebox 1 Active"
+
+    def toniebox_1_inactive_count(self, obj):
+        return obj.toniebox_productions.filter(category=TonieboxProduction.TONIEBOX_1, active=False).count()
+    toniebox_1_inactive_count.short_description = "Toniebox 1 Inactive"
+
+    def toniebox_2_production_lines_count(self, obj):
+        return obj.toniebox_productions.filter(category=TonieboxProduction.TONIEBOX_2).count()
+    toniebox_2_production_lines_count.short_description = "Toniebox 2 Production Lines"
+
+    def toniebox_2_active_count(self, obj):
+        return obj.toniebox_productions.filter(category=TonieboxProduction.TONIEBOX_2, active=True).count()
+    toniebox_2_active_count.short_description = "Toniebox 2 Active"
+
+    def toniebox_2_inactive_count(self, obj):
+        return obj.toniebox_productions.filter(category=TonieboxProduction.TONIEBOX_2, active=False).count()
+    toniebox_2_inactive_count.short_description = "Toniebox 2 Inactive"
 
 
     def factory_clouds_counts(self, obj):

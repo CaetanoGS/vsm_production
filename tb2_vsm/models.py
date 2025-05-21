@@ -3,6 +3,14 @@ from django_countries.fields import CountryField
 
 class TonieboxProduction(models.Model):
     """Represents a production batch of Tonieboxes."""
+
+    TONIEBOX_1 = 'Toniebox 1'
+    TONIEBOX_2 = 'Toniebox 2'
+    CATEGORY_CHOICES = [
+        (TONIEBOX_1, 'Toniebox 1'),
+        (TONIEBOX_2, 'Toniebox 2'),
+    ]
+
     
     name = models.CharField(max_length=100, null=True, blank=True, default=None)
     location = models.ForeignKey(
@@ -19,6 +27,7 @@ class TonieboxProduction(models.Model):
         related_name='toniebox_productions',
         blank=True,
     )
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     active = models.BooleanField(default=True)
 
     def __str__(self):
