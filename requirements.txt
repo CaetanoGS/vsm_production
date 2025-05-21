@@ -3,3 +3,5 @@ Django==5.2.1
 django-countries==7.6.1
 sqlparse==0.5.3
 typing_extensions==4.13.2
+gunicorn
+psycopg2-binary
