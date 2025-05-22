@@ -35,11 +35,26 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "name",
         "minimum_quantity",
         "current_quantity",
-        "status",
+        "colored_status",
         "location",
         "producer_link",
         "buyer_email_link",
     ]
+
+    def colored_status(self, obj):
+        color_map = {
+            "Critical": "#f8d7da",  # Light red
+            "Low": "#fff3cd",  # Light yellow
+            "Stable": "#d4edda",  # Light green
+        }
+        color = color_map.get(obj.status, "#ffffff")
+        return format_html(
+            '<span style="background-color: {}; padding: 2px 6px; border-radius: 4px;">{}</span>',
+            color,
+            obj.status,
+        )
+
+    colored_status.short_description = "Status"
 
     def producer_link(self, obj):
         if obj.producer:
