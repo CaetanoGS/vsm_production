@@ -1,57 +1,76 @@
 from django.db import models
 from django_countries.fields import CountryField
 
+
 class TonieboxProduction(models.Model):
     """Represents a production batch of Tonieboxes."""
 
-    TONIEBOX_1 = 'Toniebox 1'
-    TONIEBOX_2 = 'Toniebox 2'
-    TONIES = 'Tonies'
+    TONIEBOX_1 = "Toniebox 1"
+    TONIEBOX_2 = "Toniebox 2"
+    TONIES = "Tonies"
+    BOOK_TONIES = "Book Tonies"
+    CLEVER_TONIES = "Clever Tonies"
+    DISK = "Disk"
+    CONTROLLER = "Controller"
+    NIGHT_LIGHT = "Night Light"
+    SOFT_TONIES = "Soft Tonies"
+    OTHER = "Other"
+
     CATEGORY_CHOICES = [
-        (TONIEBOX_1, 'Toniebox 1'),
-        (TONIEBOX_2, 'Toniebox 2'),
-        (TONIES, 'Tonies'),
+        (TONIEBOX_1, "Toniebox 1"),
+        (TONIEBOX_2, "Toniebox 2"),
+        (TONIES, "Tonies"),
+        (BOOK_TONIES, "Book Tonies"),
+        (CLEVER_TONIES, "Clever Tonies"),
+        (DISK, "Disk"),
+        (CONTROLLER, "Controller"),
+        (SOFT_TONIES, "Soft Tonies"),
+        (NIGHT_LIGHT, "Night Light"),
+        (OTHER, "Other"),
     ]
 
-    
     name = models.CharField(max_length=100, null=True, blank=True, default=None)
     location = models.ForeignKey(
-        'Location',
+        "Location",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='toniebox_productions',
-        default=None
+        related_name="toniebox_productions",
+        default=None,
     )
 
     processes = models.ManyToManyField(
-        'Process',
-        related_name='toniebox_productions',
+        "Process",
+        related_name="toniebox_productions",
         blank=True,
     )
     category = models.CharField(
-        max_length=20,
-        choices=CATEGORY_CHOICES,
-        default=TONIEBOX_2
-    ) 
+        max_length=20, choices=CATEGORY_CHOICES, default=TONIEBOX_2
+    )
     active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name or f"Toniebox Production {self.id}"  # Updated to show name if available
+        return self.name or f"Toniebox Production {self.id}"
 
     def total_operators(self):
         return sum(process.total_operators() for process in self.processes.all())
 
     def average_cycle_time(self):
-        steps = [step for process in self.processes.all() for step in process.steps.all()]
+        steps = [
+            step for process in self.processes.all() for step in process.steps.all()
+        ]
         cycle_times = [step.cycle_time for step in steps if step.cycle_time is not None]
         return round(sum(cycle_times) / len(cycle_times), 2) if cycle_times else 0
 
     def minimum_output_per_hour(self):
-        steps = [step for process in self.processes.all() for step in process.steps.all()]
-        output_per_hour = [step.output_per_hour for step in steps if step.output_per_hour is not None]
+        steps = [
+            step for process in self.processes.all() for step in process.steps.all()
+        ]
+        output_per_hour = [
+            step.output_per_hour for step in steps if step.output_per_hour is not None
+        ]
         return min(output_per_hour) if output_per_hour else 0
-    
+
     class Meta:
         verbose_name = "PSM Production"
         verbose_name_plural = "PSM Productions"
@@ -59,6 +78,7 @@ class TonieboxProduction(models.Model):
 
 class Process(models.Model):
     """Represents a production process."""
+
     name = models.CharField(max_length=100, null=True, blank=True, default=None)
 
     def __str__(self):
@@ -77,33 +97,40 @@ class Process(models.Model):
     def minimum_output_per_hour(self):
         """Calculates the minimum output per hour across all steps in the process."""
         steps = self.steps.all()
-        output_per_hour = [step.output_per_hour for step in steps if step.output_per_hour is not None]
+        output_per_hour = [
+            step.output_per_hour for step in steps if step.output_per_hour is not None
+        ]
         return min(output_per_hour) if output_per_hour else 0
 
 
 class Step(models.Model):
     """Represents a step within a process."""
+
     name = models.CharField(max_length=100, null=True, blank=True, default=None)
     description = models.TextField(null=True, blank=True, default=None)
-    cycle_time = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, default=None)
+    cycle_time = models.DecimalField(
+        max_digits=6, decimal_places=2, null=True, blank=True, default=None
+    )
     amount_of_operators = models.IntegerField(null=True, blank=True, default=0)
-    output_per_hour = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, default=None)
+    output_per_hour = models.DecimalField(
+        max_digits=6, decimal_places=2, null=True, blank=True, default=None
+    )
     order = models.PositiveIntegerField(null=True, blank=True, default=None)
     process = models.ForeignKey(
         Process,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='steps',
-        default=None
+        related_name="steps",
+        default=None,
     )
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
 
     def __str__(self):
         return self.name or "Unnamed Step"
-    
+
     def calculate_output_per_hour(self):
         if self.cycle_time is not None:
             return 3600 / self.cycle_time
@@ -116,17 +143,17 @@ class Step(models.Model):
 
 class Location(models.Model):
     """Represents the location of a Toniebox production."""
-    country = CountryField()  # Use django_countries for country field
+
+    country = CountryField()
     supplier_name = models.CharField(max_length=100)
-    
-    # Location is tied to a specific Toniebox production (optional)
+
     toniebox_production = models.ForeignKey(
         TonieboxProduction,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='locations',  # Reverse relationship to access locations from TonieboxProduction
-        default=None  # Default value when no TonieboxProduction is assigned
+        related_name="locations",
+        default=None,
     )
     active = models.BooleanField(default=True)
 
@@ -138,9 +165,13 @@ class FactoryCloud(models.Model):
     fc_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255, blank=True)
     url = models.URLField()
-    location = models.ForeignKey('Location', on_delete=models.CASCADE, related_name='factory_clouds')  # Changed to ForeignKey
-    production_lines = models.ManyToManyField('TonieboxProduction', related_name='factory_clouds', blank=True)  # Made optional
-    is_backup = models.BooleanField(default=False)  # Backup assignment
+    location = models.ForeignKey(
+        "Location", on_delete=models.CASCADE, related_name="factory_clouds"
+    )
+    production_lines = models.ManyToManyField(
+        "TonieboxProduction", related_name="factory_clouds", blank=True
+    )
+    is_backup = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.name:
@@ -149,26 +180,25 @@ class FactoryCloud(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Equipment(models.Model):
-    LASER_MARKER = 'Laser Marker'
-    COMPUTER = 'Computer'
-    SDR = 'SDR'
-    PRINTER = 'Printer'
-    USB_HUB = 'USB-Hub'
-    JIG = 'JIG'
-    OTHER = 'Other'
-
+    LASER_MARKER = "Laser Marker"
+    COMPUTER = "Computer"
+    SDR = "SDR"
+    PRINTER = "Printer"
+    USB_HUB = "USB-Hub"
+    JIG = "JIG"
+    OTHER = "Other"
 
     CATEGORY_CHOICES = [
-        (LASER_MARKER, 'Laser Marker'),
-        (COMPUTER, 'Computer'),
-        (SDR, 'SDR'),
-        (PRINTER, 'Printer'),
-        (USB_HUB, 'USB-Hub'),
-        (JIG, 'JIG'),
-        (OTHER, 'Other'),
+        (LASER_MARKER, "Laser Marker"),
+        (COMPUTER, "Computer"),
+        (SDR, "SDR"),
+        (PRINTER, "Printer"),
+        (USB_HUB, "USB-Hub"),
+        (JIG, "JIG"),
+        (OTHER, "Other"),
     ]
 
     serial_number = models.CharField(max_length=100, unique=True, blank=True, null=True)
@@ -176,7 +206,9 @@ class Equipment(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     backup = models.BooleanField(default=False)
 
-    location = models.ForeignKey('Location', on_delete=models.CASCADE, related_name='equipments')
+    location = models.ForeignKey(
+        "Location", on_delete=models.CASCADE, related_name="equipments"
+    )
 
     active = models.BooleanField(default=True, editable=False)
 

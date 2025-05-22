@@ -8,41 +8,93 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Step',
+            name="Step",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cycle_time', models.FloatField()),
-                ('amount_of_operators', models.IntegerField()),
-                ('output_per_hour', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cycle_time", models.FloatField()),
+                ("amount_of_operators", models.IntegerField()),
+                ("output_per_hour", models.IntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='Process',
+            name="Process",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('step', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='processes', to='tb2_vsm.step')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "step",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="processes",
+                        to="tb2_vsm.step",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TonieboxProduction',
+            name="TonieboxProduction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('process', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='productions', to='tb2_vsm.process')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "process",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="productions",
+                        to="tb2_vsm.process",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('country', models.CharField(max_length=100)),
-                ('supplier_name', models.CharField(max_length=100)),
-                ('toniebox_production', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='locations', to='tb2_vsm.tonieboxproduction')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("country", models.CharField(max_length=100)),
+                ("supplier_name", models.CharField(max_length=100)),
+                (
+                    "toniebox_production",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="locations",
+                        to="tb2_vsm.tonieboxproduction",
+                    ),
+                ),
             ],
         ),
     ]

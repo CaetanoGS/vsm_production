@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0004_remove_process_step_process_toniebox_production_and_more'),
+        ("tb2_vsm", "0004_remove_process_step_process_toniebox_production_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tonieboxproduction',
-            name='location',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='toniebox_productions', to='tb2_vsm.location'),
+            model_name="tonieboxproduction",
+            name="location",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="toniebox_productions",
+                to="tb2_vsm.location",
+            ),
         ),
     ]

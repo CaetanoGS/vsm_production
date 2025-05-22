@@ -7,33 +7,54 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0002_alter_location_country'),
+        ("tb2_vsm", "0002_alter_location_country"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='step',
-            name='description',
+            model_name="step",
+            name="description",
             field=models.TextField(blank=True),
         ),
         migrations.AddField(
-            model_name='step',
-            name='name',
-            field=models.CharField(default='Unnamed Step', max_length=100),
+            model_name="step",
+            name="name",
+            field=models.CharField(default="Unnamed Step", max_length=100),
         ),
         migrations.AlterField(
-            model_name='location',
-            name='toniebox_production',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='locations', to='tb2_vsm.tonieboxproduction'),
+            model_name="location",
+            name="toniebox_production",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="locations",
+                to="tb2_vsm.tonieboxproduction",
+            ),
         ),
         migrations.AlterField(
-            model_name='process',
-            name='step',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='processes', to='tb2_vsm.step'),
+            model_name="process",
+            name="step",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="processes",
+                to="tb2_vsm.step",
+            ),
         ),
         migrations.AlterField(
-            model_name='tonieboxproduction',
-            name='process',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='productions', to='tb2_vsm.process'),
+            model_name="tonieboxproduction",
+            name="process",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="productions",
+                to="tb2_vsm.process",
+            ),
         ),
     ]

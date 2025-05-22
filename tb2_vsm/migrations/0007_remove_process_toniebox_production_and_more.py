@@ -6,17 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0006_remove_tonieboxproduction_process_and_more'),
+        ("tb2_vsm", "0006_remove_tonieboxproduction_process_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='process',
-            name='toniebox_production',
+            model_name="process",
+            name="toniebox_production",
         ),
         migrations.AddField(
-            model_name='tonieboxproduction',
-            name='processes',
-            field=models.ManyToManyField(blank=True, related_name='toniebox_productions', to='tb2_vsm.process'),
+            model_name="tonieboxproduction",
+            name="processes",
+            field=models.ManyToManyField(
+                blank=True, related_name="toniebox_productions", to="tb2_vsm.process"
+            ),
         ),
     ]

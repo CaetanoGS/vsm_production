@@ -6,21 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0005_tonieboxproduction_location'),
+        ("tb2_vsm", "0005_tonieboxproduction_location"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='tonieboxproduction',
-            name='process',
+            model_name="tonieboxproduction",
+            name="process",
         ),
         migrations.RemoveField(
-            model_name='process',
-            name='toniebox_production',
+            model_name="process",
+            name="toniebox_production",
         ),
         migrations.AddField(
-            model_name='process',
-            name='toniebox_production',
-            field=models.ManyToManyField(blank=True, related_name='processes', to='tb2_vsm.tonieboxproduction'),
+            model_name="process",
+            name="toniebox_production",
+            field=models.ManyToManyField(
+                blank=True, related_name="processes", to="tb2_vsm.tonieboxproduction"
+            ),
         ),
     ]

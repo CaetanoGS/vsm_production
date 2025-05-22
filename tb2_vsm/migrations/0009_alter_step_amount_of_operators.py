@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0008_step_order_tonieboxproduction_name'),
+        ("tb2_vsm", "0008_step_order_tonieboxproduction_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='step',
-            name='amount_of_operators',
+            model_name="step",
+            name="amount_of_operators",
             field=models.IntegerField(blank=True, default=0, null=True),
         ),
     ]

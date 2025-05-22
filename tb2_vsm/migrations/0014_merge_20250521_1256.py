@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0011_update_existing_equipment'),
-        ('tb2_vsm', '0013_alter_step_options'),
+        ("tb2_vsm", "0011_update_existing_equipment"),
+        ("tb2_vsm", "0013_alter_step_options"),
     ]
 
-    operations = [
-    ]
+    operations = []

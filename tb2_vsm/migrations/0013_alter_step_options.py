@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0012_factorycloud_is_backup_location_active_and_more'),
+        ("tb2_vsm", "0012_factorycloud_is_backup_location_active_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='step',
-            options={'ordering': ['order']},
+            name="step",
+            options={"ordering": ["order"]},
         ),
     ]

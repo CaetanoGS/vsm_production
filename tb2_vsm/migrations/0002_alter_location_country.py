@@ -7,13 +7,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0001_initial'),
+        ("tb2_vsm", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='location',
-            name='country',
+            model_name="location",
+            name="country",
             field=django_countries.fields.CountryField(max_length=2),
         ),
     ]

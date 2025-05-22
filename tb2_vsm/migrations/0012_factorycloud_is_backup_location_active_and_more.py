@@ -7,50 +7,96 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0010_factorycloud'),
+        ("tb2_vsm", "0010_factorycloud"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='factorycloud',
-            name='is_backup',
+            model_name="factorycloud",
+            name="backup",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='location',
-            name='active',
+            model_name="location",
+            name="active",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='tonieboxproduction',
-            name='active',
+            model_name="tonieboxproduction",
+            name="active",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='tonieboxproduction',
-            name='category',
-            field=models.CharField(choices=[('Toniebox 1', 'Toniebox 1'), ('Toniebox 2', 'Toniebox 2')], default='Toniebox 2', max_length=20),
+            model_name="tonieboxproduction",
+            name="category",
+            field=models.CharField(
+                choices=[("Toniebox 1", "Toniebox 1"), ("Toniebox 2", "Toniebox 2")],
+                default="Toniebox 2",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='factorycloud',
-            name='location',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='factory_clouds', to='tb2_vsm.location'),
+            model_name="factorycloud",
+            name="location",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="factory_clouds",
+                to="tb2_vsm.location",
+            ),
         ),
         migrations.AlterField(
-            model_name='factorycloud',
-            name='production_lines',
-            field=models.ManyToManyField(blank=True, related_name='factory_clouds', to='tb2_vsm.tonieboxproduction'),
+            model_name="factorycloud",
+            name="production_lines",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="factory_clouds",
+                to="tb2_vsm.tonieboxproduction",
+            ),
         ),
         migrations.CreateModel(
-            name='Equipment',
+            name="Equipment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('serial_number', models.CharField(blank=True, max_length=100, null=True, unique=True)),
-                ('category', models.CharField(choices=[('Laser Marker', 'Laser Marker'), ('Computer', 'Computer'), ('SDR', 'SDR'), ('Printer', 'Printer'), ('USB-Hub', 'USB-Hub'), ('JIG', 'JIG'), ('Other', 'Other')], max_length=20)),
-                ('name', models.CharField(blank=True, max_length=255, null=True)),
-                ('backup', models.BooleanField(default=False)),
-                ('active', models.BooleanField(default=True, editable=False)),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='equipments', to='tb2_vsm.location')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "serial_number",
+                    models.CharField(
+                        blank=True, max_length=100, null=True, unique=True
+                    ),
+                ),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("Laser Marker", "Laser Marker"),
+                            ("Computer", "Computer"),
+                            ("SDR", "SDR"),
+                            ("Printer", "Printer"),
+                            ("USB-Hub", "USB-Hub"),
+                            ("JIG", "JIG"),
+                            ("Other", "Other"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("name", models.CharField(blank=True, max_length=255, null=True)),
+                ("backup", models.BooleanField(default=False)),
+                ("active", models.BooleanField(default=True, editable=False)),
+                (
+                    "location",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="equipments",
+                        to="tb2_vsm.location",
+                    ),
+                ),
             ],
         ),
     ]

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0007_remove_process_toniebox_production_and_more'),
+        ("tb2_vsm", "0007_remove_process_toniebox_production_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='step',
-            name='order',
+            model_name="step",
+            name="order",
             field=models.PositiveIntegerField(blank=True, default=None, null=True),
         ),
         migrations.AddField(
-            model_name='tonieboxproduction',
-            name='name',
+            model_name="tonieboxproduction",
+            name="name",
             field=models.CharField(blank=True, default=None, max_length=100, null=True),
         ),
     ]

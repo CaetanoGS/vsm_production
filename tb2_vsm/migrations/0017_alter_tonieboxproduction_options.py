@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0016_alter_tonieboxproduction_category'),
+        ("tb2_vsm", "0016_alter_tonieboxproduction_category"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='tonieboxproduction',
-            options={'verbose_name': 'PSM Production', 'verbose_name_plural': 'PSM Productions'},
+            name="tonieboxproduction",
+            options={
+                "verbose_name": "PSM Production",
+                "verbose_name_plural": "PSM Productions",
+            },
         ),
     ]

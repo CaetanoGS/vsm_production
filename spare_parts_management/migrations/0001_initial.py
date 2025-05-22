@@ -9,19 +9,44 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('tb2_vsm', '0012_factorycloud_is_backup_location_active_and_more'),
+        ("tb2_vsm", "0012_factorycloud_is_backup_location_active_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BackupEquipment',
+            name="BackupEquipment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('minimum_quantity', models.PositiveIntegerField()),
-                ('current_quantity', models.PositiveIntegerField()),
-                ('status', models.CharField(choices=[('Critical', 'Critical'), ('Low', 'Low'), ('Stable', 'Stable')], editable=False, max_length=10)),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tb2_vsm.location')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("minimum_quantity", models.PositiveIntegerField()),
+                ("current_quantity", models.PositiveIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("Critical", "Critical"),
+                            ("Low", "Low"),
+                            ("Stable", "Stable"),
+                        ],
+                        editable=False,
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "location",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tb2_vsm.location",
+                    ),
+                ),
             ],
         ),
     ]

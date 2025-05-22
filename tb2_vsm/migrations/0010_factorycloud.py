@@ -7,19 +7,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0009_alter_step_amount_of_operators'),
+        ("tb2_vsm", "0009_alter_step_amount_of_operators"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FactoryCloud',
+            name="FactoryCloud",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fc_id', models.IntegerField(unique=True)),
-                ('name', models.CharField(blank=True, max_length=255)),
-                ('url', models.URLField()),
-                ('location', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='factory_cloud', to='tb2_vsm.location')),
-                ('production_lines', models.ManyToManyField(related_name='factory_clouds', to='tb2_vsm.tonieboxproduction')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("fc_id", models.IntegerField(unique=True)),
+                ("name", models.CharField(blank=True, max_length=255)),
+                ("url", models.URLField()),
+                (
+                    "location",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="factory_cloud",
+                        to="tb2_vsm.location",
+                    ),
+                ),
+                (
+                    "production_lines",
+                    models.ManyToManyField(
+                        related_name="factory_clouds", to="tb2_vsm.tonieboxproduction"
+                    ),
+                ),
             ],
         ),
     ]

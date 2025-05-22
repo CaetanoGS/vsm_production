@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tb2_vsm', '0015_alter_tonieboxproduction_category'),
+        ("tb2_vsm", "0015_alter_tonieboxproduction_category"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tonieboxproduction',
-            name='category',
-            field=models.CharField(choices=[('Toniebox 1', 'Toniebox 1'), ('Toniebox 2', 'Toniebox 2'), ('Tonies', 'Tonies')], default='Toniebox 2', max_length=20),
+            model_name="tonieboxproduction",
+            name="category",
+            field=models.CharField(
+                choices=[
+                    ("Toniebox 1", "Toniebox 1"),
+                    ("Toniebox 2", "Toniebox 2"),
+                    ("Tonies", "Tonies"),
+                ],
+                default="Toniebox 2",
+                max_length=20,
+            ),
         ),
     ]
