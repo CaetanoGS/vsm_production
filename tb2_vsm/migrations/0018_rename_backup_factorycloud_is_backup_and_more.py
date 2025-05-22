@@ -10,11 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name="factorycloud",
-            old_name="backup",
-            new_name="is_backup",
-        ),
         migrations.AlterField(
             model_name="tonieboxproduction",
             name="category",
