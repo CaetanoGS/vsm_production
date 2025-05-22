@@ -261,6 +261,7 @@ class Equipment(models.Model):
     )
 
     active = models.BooleanField(default=True, editable=False)
+    quantity = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         self.active = not self.backup

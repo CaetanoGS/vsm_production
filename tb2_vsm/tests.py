@@ -196,3 +196,17 @@ class EquipmentModelTests(TestCase):
         )
         with self.assertRaisesMessage(ValidationError, "is not a valid choice"):
             eq.full_clean()
+
+    def test_quantity_field_default_and_custom_value(self):
+        eq_default = Equipment.objects.create(
+            category=Equipment.UPS,
+            location=self.loc,
+        )
+        self.assertEqual(eq_default.quantity, 0)
+
+        eq_custom = Equipment.objects.create(
+            category=Equipment.UPS,
+            location=self.loc,
+            quantity=5,
+        )
+        self.assertEqual(eq_custom.quantity, 5)
