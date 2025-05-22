@@ -10,9 +10,44 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "minimum_quantity",
         "current_quantity",
         "status",
+        "producer_name",
+        "buyer_name",
     )
     readonly_fields = ("status",)
     list_filter = ("location", "status")
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "name",
+                    "location",
+                    "minimum_quantity",
+                    "current_quantity",
+                    "status",
+                )
+            },
+        ),
+        (
+            "Producer Info",
+            {
+                "fields": (
+                    "producer_name",
+                    "producer_telephone",
+                    "producer_email",
+                )
+            },
+        ),
+        (
+            "Buyer Info",
+            {
+                "fields": (
+                    "buyer_name",
+                    "buyer_email",
+                )
+            },
+        ),
+    )
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         obj = self.get_object(request, object_id)
