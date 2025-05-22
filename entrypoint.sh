@@ -13,11 +13,6 @@ fi
 # Apply migrations and run server
 if [ "$DJANGO_MODE" = "production" ]; then
     echo "Running Production Server"
-    python manage.py makemigrations
-    if [ $? -ne 0 ]; then
-      echo "Error: makemigrations failed."
-      exit 1
-    fi
     
     python manage.py migrate
     if [ $? -ne 0 ]; then
