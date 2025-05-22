@@ -145,7 +145,7 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
     def get_fields(self, request, obj=None):
         """Hide name field when creating, show when editing"""
         fields = super().get_fields(request, obj)
-        if obj is None:  # Creating new object
+        if obj is None:
             return [f for f in fields if f != "name"]
         return fields
 
