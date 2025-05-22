@@ -39,9 +39,10 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "location",
         "producer_link",
         "buyer_email_link",
+        "category",
     ]
 
-    list_filter = ["status", "location"]
+    list_filter = ["status", "location", "category"]
     readonly_fields = ["status"]
 
     def colored_status(self, obj):
