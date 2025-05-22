@@ -3,7 +3,6 @@ from django_countries.fields import CountryField
 from decimal import Decimal
 
 
-
 class TonieboxProduction(models.Model):
     """Represents a production batch of Tonieboxes."""
 
@@ -102,7 +101,7 @@ class Process(models.Model):
         output_per_hour = [
             step.output_per_hour for step in steps if step.output_per_hour is not None
         ]
-        return min(output_per_hour) if output_per_hour else Decimal('0.00')
+        return min(output_per_hour) if output_per_hour else Decimal("0.00")
 
 
 class Step(models.Model):

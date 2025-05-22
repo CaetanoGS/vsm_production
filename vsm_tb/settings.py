@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -82,15 +83,18 @@ WSGI_APPLICATION = "vsm_tb.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+if "test" in sys.argv:
+    POSTGRES_HOST = os.getenv("POSTGRES_HOST_TEST", "localhost")
+else:
+    POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
+
 DB_ENGINE = os.getenv("DB_ENGINE", "django.db.backends.postgresql")
 
 if DB_ENGINE == "django.db.backends.sqlite3":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(
-                BASE_DIR, "db.sqlite3"
-            ),  # or your preferred sqlite file path
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
         }
     }
 else:
@@ -100,7 +104,7 @@ else:
             "NAME": os.getenv("POSTGRES_DB", "postgres"),
             "USER": os.getenv("POSTGRES_USER", "postgres"),
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-            "HOST": os.getenv("POSTGRES_HOST", "localhost"),
+            "HOST": POSTGRES_HOST,
             "PORT": os.getenv("POSTGRES_PORT", "5432"),
         }
     }

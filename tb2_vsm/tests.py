@@ -10,6 +10,7 @@ from tb2_vsm.models import (
 )
 from django_countries.fields import Country
 
+
 class LocationModelTests(TestCase):
     def test_str_returns_supplier_and_country(self):
         loc = Location.objects.create(country="DE", supplier_name="Supplier A")
@@ -70,7 +71,7 @@ class ProcessModelTests(TestCase):
         Step.objects.create(process=self.process, name="Step 2", cycle_time=120)
         Step.objects.create(process=self.process, name="Step 3", cycle_time=90)
 
-        self.assertEqual(self.process.minimum_output_per_hour(), Decimal('30.00'))
+        self.assertEqual(self.process.minimum_output_per_hour(), Decimal("30.00"))
 
 
 class TonieboxProductionModelTests(TestCase):
@@ -126,11 +127,15 @@ class FactoryCloudModelTests(TestCase):
         self.loc = Location.objects.create(country="FR", supplier_name="Loc2")
 
     def test_str_and_name_auto_set(self):
-        fc = FactoryCloud.objects.create(fc_id=10, url="http://example.com", location=self.loc)
+        fc = FactoryCloud.objects.create(
+            fc_id=10, url="http://example.com", location=self.loc
+        )
         self.assertEqual(fc.name, "Factory Cloud 10")
         self.assertEqual(str(fc), "Factory Cloud 10")
 
-        fc2 = FactoryCloud.objects.create(fc_id=20, name="Custom Name", url="http://example.com", location=self.loc)
+        fc2 = FactoryCloud.objects.create(
+            fc_id=20, name="Custom Name", url="http://example.com", location=self.loc
+        )
         self.assertEqual(fc2.name, "Custom Name")
         self.assertEqual(str(fc2), "Custom Name")
 
@@ -141,12 +146,18 @@ class EquipmentModelTests(TestCase):
 
     def test_str_returns_name_or_category_and_serial(self):
         eq = Equipment.objects.create(
-            category=Equipment.LASER_MARKER, name="Laser1", serial_number="12345", location=self.loc
+            category=Equipment.LASER_MARKER,
+            name="Laser1",
+            serial_number="12345",
+            location=self.loc,
         )
         self.assertEqual(str(eq), "Laser1 (12345)")
 
         eq2 = Equipment.objects.create(
-            category=Equipment.COMPUTER, name=None, serial_number=None, location=self.loc
+            category=Equipment.COMPUTER,
+            name=None,
+            serial_number=None,
+            location=self.loc,
         )
         self.assertEqual(str(eq2), "Computer (No Serial)")
 

@@ -3,9 +3,12 @@ from django.test import TestCase
 from tb2_vsm.models import Location
 from .models import Producer, Buyer, BackupEquipment
 
+
 class ProducerModelTests(TestCase):
     def test_str_method_returns_name(self):
-        producer = Producer.objects.create(name="Test Producer", telephone="123456789", email="prod@example.com")
+        producer = Producer.objects.create(
+            name="Test Producer", telephone="123456789", email="prod@example.com"
+        )
         self.assertEqual(str(producer), "Test Producer")
 
 
@@ -18,11 +21,14 @@ class BuyerModelTests(TestCase):
 class BackupEquipmentModelTests(TestCase):
     def setUp(self):
         self.location = Location.objects.create(
-            country="DE",
-            supplier_name="Supplier A"
+            country="DE", supplier_name="Supplier A"
         )
-        self.producer = Producer.objects.create(name="Producer X", telephone="123456789", email="producerx@example.com")
-        self.buyer = Buyer.objects.create(full_name="Buyer Y", email="buyery@example.com")
+        self.producer = Producer.objects.create(
+            name="Producer X", telephone="123456789", email="producerx@example.com"
+        )
+        self.buyer = Buyer.objects.create(
+            full_name="Buyer Y", email="buyery@example.com"
+        )
 
     def test_status_critical_when_current_quantity_zero(self):
         be = BackupEquipment.objects.create(
@@ -31,7 +37,7 @@ class BackupEquipmentModelTests(TestCase):
             current_quantity=0,
             location=self.location,
             producer=self.producer,
-            buyer=self.buyer
+            buyer=self.buyer,
         )
         self.assertEqual(be.status, "Critical")
 
@@ -42,7 +48,7 @@ class BackupEquipmentModelTests(TestCase):
             current_quantity=5,
             location=self.location,
             producer=self.producer,
-            buyer=self.buyer
+            buyer=self.buyer,
         )
         self.assertEqual(be.status, "Low")
 
@@ -53,7 +59,7 @@ class BackupEquipmentModelTests(TestCase):
             current_quantity=10,
             location=self.location,
             producer=self.producer,
-            buyer=self.buyer
+            buyer=self.buyer,
         )
         self.assertEqual(be.status, "Stable")
 
@@ -68,7 +74,7 @@ class BackupEquipmentModelTests(TestCase):
             current_quantity=20,
             location=self.location,
             producer=self.producer,
-            buyer=self.buyer
+            buyer=self.buyer,
         )
         expected_str = f"Equipment 4 ({self.location.supplier_name})"
         self.assertEqual(str(be), expected_str)
