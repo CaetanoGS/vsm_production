@@ -11,7 +11,7 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "status",
         "location",
         "producer_name",
-        "buyer_name",
+        "buyer_email",
     ]
 
     def producer_name(self, obj):
@@ -20,11 +20,11 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
     producer_name.admin_order_field = "producer__name"
     producer_name.short_description = "Producer"
 
-    def buyer_name(self, obj):
-        return obj.buyer.full_name if obj.buyer else "-"
+    def buyer_email(self, obj):
+        return obj.buyer.email if obj.buyer else "-"
 
-    buyer_name.admin_order_field = "buyer__full_name"
-    buyer_name.short_description = "Buyer"
+    buyer_email.admin_order_field = "buyer__email"
+    buyer_email.short_description = "Buyer Email"
 
 
 admin.site.register(BackupEquipment, BackupEquipmentAdmin)
