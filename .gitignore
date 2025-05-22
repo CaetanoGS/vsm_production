@@ -3,3 +3,4 @@ vsm_tb/__pycache__/
 tb2_vsm/__pycache__/
 db.sqlite3
 .env
+__pycache__/
