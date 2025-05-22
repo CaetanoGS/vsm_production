@@ -106,8 +106,8 @@ class StepAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/vsm_lean_view.html", context)
 
     def vsm_lean_view_tonies(self, request):
-        toniebox_productions = TonieboxProduction.objects.filter(
-            category__in=["Tonies"]
+        toniebox_productions = TonieboxProduction.objects.exclude(
+            category__in=["Toniebox 1", "Toniebox 2"]
         ).prefetch_related("processes__steps")
 
         locations = (
