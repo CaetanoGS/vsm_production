@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.forms import ValidationError
 from django.test import TestCase
 from tb2_vsm.models import (
     TonieboxProduction,
@@ -170,3 +171,28 @@ class EquipmentModelTests(TestCase):
         eq.backup = False
         eq.save()
         self.assertTrue(eq.active)
+
+    def test_production_category_is_set_correctly(self):
+        eq = Equipment.objects.create(
+            category=Equipment.JIG,
+            production_type=Equipment.TONIEBOX_2,
+            location=self.loc,
+        )
+        self.assertEqual(eq.production_type, Equipment.TONIEBOX_2)
+
+    def test_production_category_can_be_blank(self):
+        eq = Equipment.objects.create(
+            category=Equipment.SWITCH,
+            production_type=None,
+            location=self.loc,
+        )
+        self.assertIsNone(eq.production_type)
+
+    def test_invalid_production_category(self):
+        eq = Equipment(
+            category=Equipment.CAMERA,
+            production_type="InvalidCategory",
+            location=self.loc,
+        )
+        with self.assertRaisesMessage(ValidationError, "is not a valid choice"):
+            eq.full_clean()

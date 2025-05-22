@@ -224,6 +224,33 @@ class Equipment(models.Model):
         (OTHER, "Other"),
     ]
 
+    TONIEBOX_1 = "Toniebox 1"
+    TONIEBOX_2 = "Toniebox 2"
+    TONIES = "Tonies"
+    BOOK_TONIES = "Book Tonies"
+    CLEVER_TONIES = "Clever Tonies"
+    DISK = "Disk"
+    CONTROLLER = "Controller"
+    NIGHT_LIGHT = "Night Light"
+    SOFT_TONIES = "Soft Tonies"
+
+    PRODUCTION_CHOICES = [
+        (TONIEBOX_1, "Toniebox 1"),
+        (TONIEBOX_2, "Toniebox 2"),
+        (TONIES, "Tonies"),
+        (BOOK_TONIES, "Book Tonies"),
+        (CLEVER_TONIES, "Clever Tonies"),
+        (DISK, "Disk"),
+        (CONTROLLER, "Controller"),
+        (NIGHT_LIGHT, "Night Light"),
+        (SOFT_TONIES, "Soft Tonies"),
+        (OTHER, "Other"),
+    ]
+
+    production_type = models.CharField(
+        max_length=20, choices=PRODUCTION_CHOICES, default=OTHER, null=True, blank=True
+    )
+
     serial_number = models.CharField(max_length=100, unique=True, blank=True, null=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     name = models.CharField(max_length=255, blank=True, null=True)

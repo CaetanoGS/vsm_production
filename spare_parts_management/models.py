@@ -70,7 +70,9 @@ class BackupEquipment(models.Model):
     def save(self, *args, **kwargs):
         if self.current_quantity <= 1:
             self.status = "Critical"
-        elif self.current_quantity < self.minimum_quantity and self.current_quantity > 1:
+        elif (
+            self.current_quantity < self.minimum_quantity and self.current_quantity > 1
+        ):
             self.status = "Low"
         else:
             self.status = "Stable"
