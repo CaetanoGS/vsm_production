@@ -41,6 +41,9 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "buyer_email_link",
     ]
 
+    list_filter = ["status", "location"]
+    readonly_fields = ["status"]
+
     def colored_status(self, obj):
         color_map = {
             "Critical": "#f8d7da",  # Light red
