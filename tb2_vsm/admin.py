@@ -251,6 +251,7 @@ class EquipmentAdmin(admin.ModelAdmin):
         "location",
         "backup",
         "active",
+        "production_type",
     ]
-    list_filter = ["location", "category", "backup", "active"]
-    search_fields = ["serial_number", "name", "active"]
+    list_filter = ["location", "category", "backup", "active", "production_type"]
+    search_fields = ["serial_number", "name", "active", "production_type"]
