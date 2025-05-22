@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BackupEquipment
+from .models import BackupEquipment, Buyer, Producer
 
 
 class BackupEquipmentAdmin(admin.ModelAdmin):
@@ -28,3 +28,5 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(BackupEquipment, BackupEquipmentAdmin)
+admin.site.register(Buyer)
+admin.site.register(Producer)
