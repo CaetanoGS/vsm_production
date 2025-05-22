@@ -190,6 +190,17 @@ class Equipment(models.Model):
     USB_HUB = "USB-Hub"
     JIG = "JIG"
     OTHER = "Other"
+    TMS = "TMS"
+    DISPLAY = "Display"
+    NFC_READER = "NFC Reader"
+    CAMERA = "Camera"
+    SWITCH = "Switch"
+    UPS = "UPS"
+    FACILITY_CONTROLLER = "Facility Controller"
+    SCANNER = "Scanner"
+    BUTTON = "Button"
+    LIGHT_STRIP = "Light Strip"
+    ROUTER = "Router"
 
     CATEGORY_CHOICES = [
         (LASER_MARKER, "Laser Marker"),
@@ -198,6 +209,17 @@ class Equipment(models.Model):
         (PRINTER, "Printer"),
         (USB_HUB, "USB-Hub"),
         (JIG, "JIG"),
+        (TMS, "TMS"),
+        (DISPLAY, "Display"),
+        (NFC_READER, "NFC Reader"),
+        (CAMERA, "Camera"),
+        (SWITCH, "Switch"),
+        (UPS, "UPS"),
+        (FACILITY_CONTROLLER, "Facility Controller"),
+        (SCANNER, "Scanner"),
+        (BUTTON, "Button"),
+        (LIGHT_STRIP, "Light Strip"),
+        (ROUTER, "Router"),
         (OTHER, "Other"),
     ]
 
