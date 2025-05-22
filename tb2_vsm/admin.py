@@ -142,6 +142,20 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
     list_filter = ["location", "category"]
     filter_horizontal = ("processes",)
 
+    def get_fields(self, request, obj=None):
+        """Hide name field when creating, show when editing"""
+        fields = super().get_fields(request, obj)
+        if obj is None:  # Creating new object
+            return [f for f in fields if f != "name"]
+        return fields
+
+    def save_model(self, request, obj, form, change):
+        """Auto-generate name on create"""
+        super().save_model(request, obj, form, change)
+        if not change and not obj.name:
+            obj.name = f"Production {obj.id}"
+            obj.save()
+
 
 @admin.register(Process)
 class ProcessAdmin(admin.ModelAdmin):
