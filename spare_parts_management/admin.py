@@ -1,7 +1,34 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import BackupEquipment, Buyer, Producer
 
 
+@admin.register(Buyer)
+class BuyerAdmin(admin.ModelAdmin):
+    list_display = ["full_name", "email_link"]
+
+    def email_link(self, obj):
+        return format_html('<a href="mailto:{}">{}</a>', obj.email, obj.email)
+
+    email_link.short_description = "Email"
+
+
+@admin.register(Producer)
+class ProducerAdmin(admin.ModelAdmin):
+    list_display = ["name", "telephone_link", "email_link"]
+
+    def telephone_link(self, obj):
+        return format_html('<a href="tel:{}">{}</a>', obj.telephone, obj.telephone)
+
+    telephone_link.short_description = "Telephone"
+
+    def email_link(self, obj):
+        return format_html('<a href="mailto:{}">{}</a>', obj.email, obj.email)
+
+    email_link.short_description = "Email"
+
+
+@admin.register(BackupEquipment)
 class BackupEquipmentAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -10,23 +37,23 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "current_quantity",
         "status",
         "location",
-        "producer_name",
-        "buyer_email",
+        "producer_link",
+        "buyer_email_link",
     ]
 
-    def producer_name(self, obj):
-        return obj.producer.name if obj.producer else "-"
+    def producer_link(self, obj):
+        if obj.producer:
+            url = f"/admin/{obj.producer._meta.app_label}/{obj.producer._meta.model_name}/{obj.producer.pk}/change/"
+            return format_html('<a href="{}">{}</a>', url, obj.producer.name)
+        return "-"
 
-    producer_name.admin_order_field = "producer__name"
-    producer_name.short_description = "Producer"
+    producer_link.short_description = "Producer"
 
-    def buyer_email(self, obj):
-        return obj.buyer.email if obj.buyer else "-"
+    def buyer_email_link(self, obj):
+        if obj.buyer and obj.buyer.email:
+            return format_html(
+                '<a href="mailto:{}">{}</a>', obj.buyer.email, obj.buyer.email
+            )
+        return "-"
 
-    buyer_email.admin_order_field = "buyer__email"
-    buyer_email.short_description = "Buyer Email"
-
-
-admin.site.register(BackupEquipment, BackupEquipmentAdmin)
-admin.site.register(Buyer)
-admin.site.register(Producer)
+    buyer_email_link.short_description = "Buyer Email"
