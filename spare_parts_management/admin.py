@@ -74,21 +74,21 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         return Decimal("0.00")
 
     def changelist_view(self, request, extra_context=None):
-            response = super().changelist_view(request, extra_context=extra_context)
+        response = super().changelist_view(request, extra_context=extra_context)
 
-            try:
-                cl = self.get_changelist_instance(request)
-                queryset = cl.queryset  # This includes filters from the admin interface
-                total_investment = sum(self._investment_required(obj) for obj in queryset)
+        try:
+            cl = self.get_changelist_instance(request)
+            queryset = cl.queryset  # This includes filters from the admin interface
+            total_investment = sum(self._investment_required(obj) for obj in queryset)
 
-                messages.warning(
-                    request,
-                    f"💶 Total Investment Required for Visible Items: {total_investment:.2f} €",
-                )
-            except Exception:
-                pass  # Fallback in case we’re not in the changelist view context
+            messages.warning(
+                request,
+                f"💶 Total Investment Required for Visible Items: {total_investment:.2f} €",
+            )
+        except Exception:
+            pass  # Fallback in case we’re not in the changelist view context
 
-            return response
+        return response
 
     def get_changelist_instance(self, request):
         """
@@ -107,9 +107,18 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         list_editable = self.list_editable
 
         return ChangeList(
-            request, model, list_display, list_display_links, list_filter,
-            self.date_hierarchy, search_fields, self.list_select_related,
-            list_per_page, self.list_max_show_all, self.list_editable, self
+            request,
+            model,
+            list_display,
+            list_display_links,
+            list_filter,
+            self.date_hierarchy,
+            search_fields,
+            self.list_select_related,
+            list_per_page,
+            self.list_max_show_all,
+            self.list_editable,
+            self,
         )
 
     def producer_link(self, obj):
