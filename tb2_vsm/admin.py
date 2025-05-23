@@ -204,11 +204,11 @@ class LocationAdmin(admin.ModelAdmin):
 
     def total_operators(self, obj):
         total = 0
-        for production in obj.toniebox_productions.all():
+        for production in obj.toniebox_productions.filter(active=True):
             total += production.total_operators()
         return total
 
-    total_operators.short_description = "Total Operators"
+    total_operators.short_description = "Total Operators (Active Lines Only)"
 
 
 @admin.register(FactoryCloud)
