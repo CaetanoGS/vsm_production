@@ -53,6 +53,13 @@ class BackupEquipment(models.Model):
     name = models.CharField(max_length=255)
     minimum_quantity = models.PositiveIntegerField()
     current_quantity = models.PositiveIntegerField(default=0)
+    price = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Price in Euros (€)",
+    )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, editable=False)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     producer = models.ForeignKey(

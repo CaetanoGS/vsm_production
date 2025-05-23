@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import BackupEquipment, Buyer, Producer
+from decimal import Decimal
 
 
 @admin.register(Buyer)
@@ -36,6 +37,8 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "minimum_quantity",
         "current_quantity",
         "colored_status",
+        "price",
+        "investment_required_display",
         "location",
         "producer_link",
         "buyer_email_link",
@@ -59,6 +62,30 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         )
 
     colored_status.short_description = "Status"
+
+    def investment_required_display(self, obj):
+        return self._investment_required(obj)
+
+    investment_required_display.short_description = "Investment Required (€)"
+
+    def _investment_required(self, obj):
+        if obj.price is not None and obj.current_quantity < obj.minimum_quantity:
+            return (obj.minimum_quantity - obj.current_quantity) * obj.price
+        return Decimal("0.00")
+
+    def changelist_view(self, request, extra_context=None):
+        queryset = self.get_queryset(request)
+        total_investment = sum(self._investment_required(obj) for obj in queryset)
+
+        # Add the message using Django's message framework
+        from django.contrib import messages
+
+        messages.info(
+            request,
+            f"💶 Total Investment Required for Visible Items: {total_investment:.2f} €",
+        )
+
+        return super().changelist_view(request, extra_context=extra_context)
 
     def producer_link(self, obj):
         if obj.producer:
