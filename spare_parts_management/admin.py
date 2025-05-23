@@ -77,10 +77,9 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         queryset = self.get_queryset(request)
         total_investment = sum(self._investment_required(obj) for obj in queryset)
 
-        # Add the message using Django's message framework
         from django.contrib import messages
 
-        messages.info(
+        messages.warning(
             request,
             f"💶 Total Investment Required for Visible Items: {total_investment:.2f} €",
         )
