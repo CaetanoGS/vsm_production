@@ -11,9 +11,9 @@ from django.urls import reverse
 from django.db.models import Prefetch
 
 
-admin.site.site_header = "TB2 Production Administration"
-admin.site.site_title = "TB2 Production Admin Portal"
-admin.site.index_title = "TB2 Production Administration"
+admin.site.site_header = "PSM Production Hub"
+admin.site.site_title = "PSM Production Hub"
+admin.site.index_title = "PSM Production Hub"
 
 
 @admin.register(Step)

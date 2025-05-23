@@ -1,7 +1,5 @@
 {% extends "admin/base_site.html" %}
 
-{% block title %}Toniebox Production Admin{% endblock %}
-
 {% block content %}
 <style>
     body {
@@ -34,6 +32,22 @@
         font-size: 1.2em;
         color: #666;
         margin-bottom: 35px;
+    }
+
+    .btn-section {
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        font-size: 1.6em;
+        color: #222;
+        margin-bottom: 10px;
+    }
+
+    .section-description {
+        font-size: 1em;
+        color: #666;
+        margin-bottom: 20px;
     }
 
     .tonies-dashboard .btn-container {
@@ -70,17 +84,44 @@
 <div class="tonies-dashboard">
     <img src="/static/img/tonies-logo.png" alt="Toniebox Logo" />
 
-    <h1>Welcome to PSM Production Admin</h1>
+    <h1>Welcome to PSM Production Hub</h1>
     <p>Visualize and manage your production processes. Select a view below to get started:</p>
 
-    <div class="btn-container">
-        <a href="{% url 'admin:step-tree-view' %}" class="btn" target="_blank">📊 Step Tree View</a>
-        <a href="{% url 'admin:vsm-lean-view' %}" class="btn" target="_blank">📈 Diagram View Toniebox</a>
-        <a href="{% url 'admin:vsm-lean-tonies-view' %}" class="btn" target="_blank">📈 Diagram View Tonies</a>
-        <a href="https://elk.tonie.cloud/app/dashboards#/view/3653daa0-2f11-11f0-a232-9b731f5c2a23?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'2025-05-15T03:00:00.000Z',to:now))&_a=(description:'',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!t,title:tpo-production-status-fc15,viewMode:view)"
-            class="btn" target="_blank">🇻🇳 Monitor Toniebox 2 Vietnam</a>
-        <a href="https://elk.tonie.cloud/app/dashboards#/view/ca0ec110-1427-11f0-a6bf-cb56bbe50915?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'2025-04-08T02:00:00.000Z',to:now))&_a=(description:'',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!t,title:tpo-production-status,viewMode:view)"
-            class="btn" target="_blank">🇨🇳 Monitor Toniebox 2 China</a>
+    <!-- Step Tree View Block -->
+    <div class="btn-section">
+        <div class="section-title">🧩 Step Tree View</div>
+        <div class="section-description">
+            It represents the whole set of existing production lines which PSM is taking care.
+        </div>
+        <div class="btn-container">
+            <a href="{% url 'admin:step-tree-view' %}" class="btn" target="_blank">📊 Step Tree View</a>
+        </div>
+    </div>
+
+    <!-- Diagrams View Block -->
+    <div class="btn-section">
+        <div class="section-title">📈 Diagrams View</div>
+        <div class="section-description">
+            Show a simplified VSM view of the registered production lines.
+        </div>
+        <div class="btn-container">
+            <a href="{% url 'admin:vsm-lean-view' %}" class="btn" target="_blank">📈 Diagram View Toniebox</a>
+            <a href="{% url 'admin:vsm-lean-tonies-view' %}" class="btn" target="_blank">📈 Diagram View Tonies</a>
+        </div>
+    </div>
+
+    <!-- Monitor View Block -->
+    <div class="btn-section">
+        <div class="section-title">📺 Monitor View</div>
+        <div class="section-description">
+            Redirects the user to the production dashboard in order to control the production in-live.
+        </div>
+        <div class="btn-container">
+            <a href="https://elk.tonie.cloud/app/dashboards#/view/3653daa0-2f11-11f0-a232-9b731f5c2a23?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'2025-05-15T03:00:00.000Z',to:now))&_a=(description:'',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!t,title:tpo-production-status-fc15,viewMode:view)"
+                class="btn" target="_blank">🇻🇳 Monitor Toniebox 2 Vietnam</a>
+            <a href="https://elk.tonie.cloud/app/dashboards#/view/ca0ec110-1427-11f0-a6bf-cb56bbe50915?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'2025-04-08T02:00:00.000Z',to:now))&_a=(description:'',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!t,title:tpo-production-status,viewMode:view)"
+                class="btn" target="_blank">🇨🇳 Monitor Toniebox 2 China</a>
+        </div>
     </div>
 
     <div class="author">
