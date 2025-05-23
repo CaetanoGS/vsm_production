@@ -1,4 +1,4 @@
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.utils.html import format_html
 from .models import BackupEquipment, Buyer, Producer
 from decimal import Decimal
@@ -74,52 +74,17 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         return Decimal("0.00")
 
     def changelist_view(self, request, extra_context=None):
-        response = super().changelist_view(request, extra_context=extra_context)
+        queryset = self.get_queryset(request)
+        total_investment = sum(self._investment_required(obj) for obj in queryset)
 
-        try:
-            cl = self.get_changelist_instance(request)
-            queryset = cl.queryset  # This includes filters from the admin interface
-            total_investment = sum(self._investment_required(obj) for obj in queryset)
+        from django.contrib import messages
 
-            messages.warning(
-                request,
-                f"💶 Total Investment Required for Visible Items: {total_investment:.2f} €",
-            )
-        except Exception:
-            pass  # Fallback in case we’re not in the changelist view context
-
-        return response
-
-    def get_changelist_instance(self, request):
-        """
-        Helper method to get the filtered and sorted queryset from the changelist.
-        """
-        from django.contrib.admin.views.main import ChangeList
-
-        model = self.model
-        list_display = self.get_list_display(request)
-        list_display_links = self.get_list_display_links(request, list_display)
-        list_filter = self.get_list_filter(request)
-        search_fields = self.get_search_fields(request)
-        list_select_related = self.get_list_select_related(request)
-        list_per_page = self.list_per_page
-        list_max_show_all = self.list_max_show_all
-        list_editable = self.list_editable
-
-        return ChangeList(
+        messages.info(
             request,
-            model,
-            list_display,
-            list_display_links,
-            list_filter,
-            self.date_hierarchy,
-            search_fields,
-            self.list_select_related,
-            list_per_page,
-            self.list_max_show_all,
-            self.list_editable,
-            self,
+            f"💶 Total Investment Required for Visible Items: {total_investment:.2f} €",
         )
+
+        return super().changelist_view(request, extra_context=extra_context)
 
     def producer_link(self, obj):
         if obj.producer:
