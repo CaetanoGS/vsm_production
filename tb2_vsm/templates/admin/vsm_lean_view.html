@@ -11,6 +11,7 @@
 <div class="mermaid-container" id="panContainer">
     <div class="mermaid-wrapper" id="mermaidWrapper">
         <div class="mermaid">
+            {% comment %} Start Mermaid text {% endcomment %}
             graph TD
             {% for location in locations %}
             LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
@@ -36,17 +37,9 @@
             PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
-            {% empty %}
-            PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
-            {{ process.name }}<br><i>No steps available</i>"]
             {% endfor %}
-            {% empty %}
-            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes
-                available</i>"]
             {% endfor %}
             {% endif %}
-            {% empty %}
-            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
             {% endfor %}
             {% endfor %}
         </div>
