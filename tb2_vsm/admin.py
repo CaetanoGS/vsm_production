@@ -83,7 +83,7 @@ class StepAdmin(admin.ModelAdmin):
 
     def vsm_lean_view(self, request):
         toniebox_productions = TonieboxProduction.objects.filter(
-            category__in=["Toniebox 1", "Toniebox 2"]
+            category__in=["Toniebox 2"]
         ).prefetch_related("processes__steps")
 
         locations = (
@@ -94,7 +94,7 @@ class StepAdmin(admin.ModelAdmin):
                     to_attr="filtered_productions",
                 )
             )
-            .filter(toniebox_productions__category__in=["Toniebox 1", "Toniebox 2"])
+            .filter(toniebox_productions__category__in=["Toniebox 2"])
             .distinct()
         )
 
