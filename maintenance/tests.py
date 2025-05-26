@@ -3,13 +3,13 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Maintenance
 from tb2_vsm.models import Location, Equipment
+from django.db.utils import IntegrityError
 
 
 class MaintenanceModelTest(TestCase):
     def setUp(self):
         self.location = Location.objects.create(
-            country="DE",  # Germany ISO code
-            supplier_name="Test Supplier"
+            country="DE", supplier_name="Test Supplier"  # Germany ISO code
         )
         self.equipment = Equipment.objects.create(
             name="Test Equipment",
@@ -59,3 +59,18 @@ class MaintenanceModelTest(TestCase):
             status="on_track",
         )
         self.assertFalse(active_maintenance.is_expired())
+
+    def test_equipment_uniqueness(self):
+        Maintenance.objects.create(
+            equipment=self.equipment,
+            last_maintenance_day=self.last_maintenance,
+            next_maintenance_day=self.next_maintenance,
+            status="on_track",
+        )
+        with self.assertRaises(IntegrityError):
+            Maintenance.objects.create(
+                equipment=self.equipment,
+                last_maintenance_day=self.last_maintenance,
+                next_maintenance_day=self.next_maintenance + timedelta(days=10),
+                status="on_track",
+            )
