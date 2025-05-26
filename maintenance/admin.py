@@ -16,6 +16,10 @@ class MaintenanceAdmin(admin.ModelAdmin):
         "colored_status",
         "next_maintenance_in_days_display",
     )
+    list_filter = (
+        'equipment__location',
+    )
+    ordering = ('next_maintenance_day',)
 
     def equipment_id_link(self, obj):
         url = reverse("admin:tb2_vsm_equipment_change", args=[obj.equipment.id])
