@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "tb2_vsm",
     "django_countries",
     "spare_parts_management",
+    "maintenance",
 ]
 
 MIDDLEWARE = [
