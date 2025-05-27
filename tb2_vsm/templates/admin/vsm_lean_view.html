@@ -30,6 +30,7 @@
             PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
+            {% if process.steps.all %}
             {% for step in process.steps.all %}
             STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}<br><small>CT: {{ step.cycle_time
@@ -39,18 +40,21 @@
             PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
-            {% empty %}
+            {% endfor %}
+            {% else %}
             PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
             {{ process.name }}<br><i>No steps available</i>"]
+            {% endif %}
             {% endfor %}
-            {% empty %}
+
+            {% else %}
             PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes
                 available</i>"]
-            {% endfor %}
             {% endif %}
-            {% empty %}
-            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
             {% endfor %}
+            {% if not location.toniebox_productions.all %}
+            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
+            {% endif %}
         </div>
     </div>
 </div>
@@ -82,7 +86,6 @@
         const wrapper = container.querySelector('.mermaid-wrapper');
         const containerId = container.dataset.location;
 
-        // Initialize zoom state for each container
         zoomStates.set(containerId, {
             scale: 1,
             left: 0,
@@ -94,7 +97,6 @@
         wrapper.style.left = '0px';
         wrapper.style.top = '0px';
 
-        // Mouse enter to track which container is active
         container.addEventListener('mouseenter', () => {
             currentContainerId = containerId;
         });
@@ -173,8 +175,6 @@
     });
 </script>
 
-
-<!-- Styles -->
 <style>
     .mermaid-container {
         overflow: auto;
