@@ -4,8 +4,17 @@
 
 {% for graph, location in mermaid_graphs %}
 <h3 style="margin-top: 2rem;">Production at {{ location.country.name }} ({{ location.supplier_name }})</h3>
-<div class="mermaid-container" style="height: 50vh; overflow:auto; margin-bottom: 2rem;">
-    <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}">
+
+<div class="controls" style="margin-bottom: 0.5rem;">
+    <button class="zoom-out" data-target="mermaidWrapper{{ forloop.counter }}" title="Zoom Out">➖</button>
+    <button class="zoom-reset" data-target="mermaidWrapper{{ forloop.counter }}" title="Reset Zoom">🔄</button>
+    <button class="zoom-in" data-target="mermaidWrapper{{ forloop.counter }}" title="Zoom In">➕</button>
+</div>
+
+<div class="mermaid-container"
+    style="height: 50vh; overflow: auto; margin-bottom: 2rem; border: 1px solid #ccc; background: #f9f9f9;">
+    <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}"
+        style="transform-origin: 0 0; cursor: grab; position: relative; top: 0; left: 0; user-select: none;">
         <div class="mermaid" id="mermaid{{ forloop.counter }}">
             {{ graph|safe }}
         </div>
@@ -20,16 +29,95 @@
     document.querySelectorAll('.mermaid').forEach(el => {
         mermaid.init(undefined, el);
     });
+
+    // Zoom and drag handlers
+    document.querySelectorAll('.mermaid-wrapper').forEach(wrapper => {
+        wrapper.dataset.scale = 1;
+        wrapper.dataset.translateX = 0;
+
+        // Drag variables
+        let isDragging = false;
+        let startX = 0;
+        let currentTranslateX = 0;
+
+        wrapper.style.transform = 'translateX(0px) scale(1)';
+
+        wrapper.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            wrapper.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            wrapper.style.cursor = 'grab';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            startX = e.clientX;
+            currentTranslateX = parseFloat(wrapper.dataset.translateX) + dx;
+            wrapper.dataset.translateX = currentTranslateX;
+            updateTransform(wrapper);
+        });
+
+        function updateTransform(el) {
+            const scale = parseFloat(el.dataset.scale);
+            const translateX = parseFloat(el.dataset.translateX);
+            el.style.transform = `translateX(${translateX}px) scale(${scale})`;
+        }
+    });
+
+    // Zoom buttons handlers
+    document.querySelectorAll('.zoom-in').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const wrapper = document.getElementById(targetId);
+            let scale = parseFloat(wrapper.dataset.scale);
+            scale = Math.min(scale + 1, 10);  // max zoom 10
+            wrapper.dataset.scale = scale;
+            updateTransform(wrapper);
+        });
+    });
+
+    document.querySelectorAll('.zoom-out').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const wrapper = document.getElementById(targetId);
+            let scale = parseFloat(wrapper.dataset.scale);
+            scale = Math.max(scale - 1, 1);  // min zoom 1
+            wrapper.dataset.scale = scale;
+            updateTransform(wrapper);
+        });
+    });
+
+    document.querySelectorAll('.zoom-reset').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const wrapper = document.getElementById(targetId);
+            wrapper.dataset.scale = 1;
+            wrapper.dataset.translateX = 0;
+            updateTransform(wrapper);
+        });
+    });
+
+    // Helper function to update transform (used in zoom buttons too)
+    function updateTransform(el) {
+        const scale = parseFloat(el.dataset.scale);
+        const translateX = parseFloat(el.dataset.translateX);
+        el.style.transform = `translateX(${translateX}px) scale(${scale})`;
+    }
 </script>
 
 <style>
     .mermaid-container {
         overflow: auto;
         position: relative;
-        border: 1px solid #ccc;
         height: 50vh;
-        background: #f9f9f9;
         margin-bottom: 1.5rem;
+        border: 1px solid #ccc;
+        background: #f9f9f9;
     }
 
     .mermaid-wrapper {
@@ -37,6 +125,8 @@
         position: relative;
         top: 0;
         left: 0;
+        cursor: grab;
+        user-select: none;
     }
 
     .mermaid {
@@ -49,6 +139,13 @@
         font-weight: 600;
         font-size: 1.25rem;
         margin-bottom: 1rem;
+    }
+
+    .controls button {
+        margin-right: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.9rem;
+        cursor: pointer;
     }
 </style>
 
