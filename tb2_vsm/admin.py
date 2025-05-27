@@ -63,14 +63,21 @@ class StepAdmin(admin.ModelAdmin):
 
         lines = ["graph TD"]
 
-        # Filter only active TonieboxProductions in this location
-        active_productions = location.toniebox_productions.filter(active=True)
+        active_productions = getattr(
+            location,
+            "filtered_productions",
+            location.toniebox_productions.filter(active=True),
+        )
 
-        # Location metrics calculated only from active productions
+        if not active_productions:
+            return ""
+
         total_ops = sum(_val(p.total_operators) for p in active_productions)
         avg_cts = [_val(p.average_cycle_time) for p in active_productions]
         avg_ct = round(sum(avg_cts) / len(avg_cts), 2) if avg_cts else 0
-        min_out = min((_val(p.minimum_output_per_hour) for p in active_productions), default=0)
+        min_out = min(
+            (_val(p.minimum_output_per_hour) for p in active_productions), default=0
+        )
 
         loc_label = (
             f"🌍 {location.country.name} <br>({location.supplier_name})<br><small>"
@@ -89,7 +96,7 @@ class StepAdmin(admin.ModelAdmin):
                 "</small>"
             )
             lines.append(f'P_{index}_{j}["{prod_label}"]')
-            lines.append(f'L_{index} --> P_{index}_{j}')
+            lines.append(f"L_{index} --> P_{index}_{j}")
 
             for k, proc in enumerate(prod.processes.all(), 1):
                 proc_ops = _val(proc.total_operators)
@@ -101,29 +108,31 @@ class StepAdmin(admin.ModelAdmin):
                     "</small>"
                 )
                 lines.append(f'C_{index}_{j}_{k}["{proc_label}"]')
-                lines.append(f'P_{index}_{j} --> C_{index}_{j}_{k}')
+                lines.append(f"P_{index}_{j} --> C_{index}_{j}_{k}")
 
                 for m, step in enumerate(proc.steps.all(), 1):
                     step_ct = _val(step.cycle_time)
-                    warning = ""
-                    if step_ct > prod_ct:
-                        warning = '⚠️ '
+                    warning = "⚠️ " if step_ct > prod_ct else ""
                     step_label = (
                         f"{warning}🔧 {step.name}<br><small>"
                         f"CT: {step_ct}s, Ops: {step.amount_of_operators}"
                         "</small>"
                     )
                     lines.append(f'S_{index}_{j}_{k}_{m}["{step_label}"]')
-                    lines.append(f'C_{index}_{j}_{k} --> S_{index}_{j}_{k}_{m}')
+                    lines.append(f"C_{index}_{j}_{k} --> S_{index}_{j}_{k}_{m}")
 
         return "\n".join(lines)
 
-
-
     def step_tree_view(self, request):
-        locations = Location.objects.prefetch_related(
-            "toniebox_productions__processes__steps"
-        ).all()
+        locations = Location.objects.filter(active=True).prefetch_related(
+            Prefetch(
+                "toniebox_productions",
+                queryset=TonieboxProduction.objects.filter(
+                    active=True
+                ).prefetch_related("processes__steps"),
+                to_attr="filtered_productions",
+            )
+        )
 
         context = dict(
             self.admin_site.each_context(request),
@@ -134,25 +143,26 @@ class StepAdmin(admin.ModelAdmin):
 
     def vsm_lean_view(self, request):
         toniebox_productions = TonieboxProduction.objects.filter(
-            category__in=["Toniebox 2"]
+            active=True, category__in=["Toniebox 2"]
         ).prefetch_related("processes__steps")
 
         locations = (
-            Location.objects.prefetch_related(
+            Location.objects.filter(active=True)
+            .prefetch_related(
                 Prefetch(
                     "toniebox_productions",
                     queryset=toniebox_productions,
                     to_attr="filtered_productions",
                 )
             )
-            .filter(toniebox_productions__category__in=["Toniebox 1", "Toniebox 2"])
             .distinct()
         )
 
         mermaid_graphs = []
         for idx, location in enumerate(locations, 1):
             graph = self.build_mermaid_graph(location, idx)
-            mermaid_graphs.append((graph, location))
+            if graph:
+                mermaid_graphs.append((graph, location))
 
         context = dict(
             self.admin_site.each_context(request),
@@ -162,14 +172,16 @@ class StepAdmin(admin.ModelAdmin):
         )
         return TemplateResponse(request, "admin/vsm_lean_view.html", context)
 
-
     def vsm_lean_view_tonies(self, request):
-        toniebox_productions = TonieboxProduction.objects.exclude(
-            category__in=["Toniebox 1", "Toniebox 2"]
-        ).prefetch_related("processes__steps")
+        toniebox_productions = (
+            TonieboxProduction.objects.filter(active=True)
+            .exclude(category__in=["Toniebox 1", "Toniebox 2"])
+            .prefetch_related("processes__steps")
+        )
 
         locations = (
-            Location.objects.prefetch_related(
+            Location.objects.filter(active=True)
+            .prefetch_related(
                 Prefetch(
                     "toniebox_productions",
                     queryset=toniebox_productions,
@@ -183,7 +195,8 @@ class StepAdmin(admin.ModelAdmin):
         mermaid_graphs = []
         for idx, location in enumerate(locations, 1):
             graph = self.build_mermaid_graph(location, idx)
-            mermaid_graphs.append((graph, location))
+            if graph:
+                mermaid_graphs.append((graph, location))
 
         context = dict(
             self.admin_site.each_context(request),
@@ -192,7 +205,6 @@ class StepAdmin(admin.ModelAdmin):
             title="Production Structure",
         )
         return TemplateResponse(request, "admin/vsm_lean_view_tonies.html", context)
-
 
 
 @admin.register(TonieboxProduction)
