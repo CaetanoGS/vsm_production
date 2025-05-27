@@ -2,47 +2,28 @@
 
 {% block content %}
 
-{% for location in locations %}
+{% for graph in mermaid_graphs %}
 <div class="mermaid-container" style="height: 50vh; overflow:auto; margin-bottom: 2rem;">
     <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}">
         <div class="mermaid" id="mermaid{{ forloop.counter }}">
-            graph TD
-            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
-
-            {% for production in location.toniebox_productions.all %}
-            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}"]
-            LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
-
-            {% for process in production.processes.all %}
-            PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
-            {{ process.name }}"]
-            PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{
-            forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
-
-            {% for step in process.steps.all %}
-            STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
-            forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}"]
-            PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
-            forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{
-            forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
-            {% endfor %}
-            {% endfor %}
-            {% endfor %}
+            {{ graph|safe }}
         </div>
     </div>
 </div>
 {% endfor %}
 
-<!-- Mermaid JS -->
+
+
+
 <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-
     mermaid.initialize({ startOnLoad: true });
 
     document.querySelectorAll('.mermaid').forEach(el => {
         mermaid.init(undefined, el);
     });
 </script>
+
 
 <style>
     .mermaid-container {
@@ -64,6 +45,7 @@
     .mermaid {
         font-size: 12px;
         min-width: 800px;
+        white-space: pre;
     }
 </style>
 

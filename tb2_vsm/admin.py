@@ -55,19 +55,70 @@ class StepAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    def step_tree_view(self, request):
-        locations = (
-            Location.objects.select_related("country")
-            .prefetch_related("toniebox_productions__processes__steps")
-            .all()
-        )
+    def build_mermaid_graph(self, location, index):
+        def _val(v):
+            if callable(v):
+                v = v()
+            return v or 0
 
-        context = dict(
-            self.admin_site.each_context(request),
-            locations=locations,
-            title="Step Tree View (Hierarchical)",
+        lines = ["graph TD"]
+
+        # Location metrics
+        total_ops = sum(_val(p.total_operators) for p in location.toniebox_productions.all())
+        avg_cts = [_val(p.average_cycle_time) for p in location.toniebox_productions.all()]
+        avg_ct = round(sum(avg_cts) / len(avg_cts), 2) if avg_cts else 0
+        min_out = min((_val(p.minimum_output_per_hour) for p in location.toniebox_productions.all()), default=0)
+
+        loc_label = (
+            f"🌍 {location.country.name} <br>({location.supplier_name})<br><small>"
+            f"Operators: {total_ops}, CT: {avg_ct}s, Min Out/h: {min_out}"
+            "</small>"
         )
-        return TemplateResponse(request, "admin/step_tree_view.html", context)
+        lines.append(f'L_{index}["{loc_label}"]')
+
+        for j, prod in enumerate(location.toniebox_productions.all(), 1):
+            prod_ops = _val(prod.total_operators)
+            prod_ct  = _val(prod.average_cycle_time)
+            prod_min = _val(prod.minimum_output_per_hour)
+            prod_label = (
+                f"📦 {prod.name}<br><small>"
+                f"Operators: {prod_ops}, CT: {prod_ct}s, Min Out/h: {prod_min}"
+                "</small>"
+            )
+            lines.append(f'P_{index}_{j}["{prod_label}"]')
+            lines.append(f'L_{index} --> P_{index}_{j}')
+
+            for k, proc in enumerate(prod.processes.all(), 1):
+                proc_ops = _val(proc.total_operators)
+                proc_ct  = _val(proc.average_cycle_time)
+                proc_min = _val(proc.minimum_output_per_hour)
+                proc_label = (
+                    f"⚙️ {proc.name}<br><small>"
+                    f"Operators: {proc_ops}, CT: {proc_ct}s, Min Out/h: {proc_min}"
+                    "</small>"
+                )
+                lines.append(f'C_{index}_{j}_{k}["{proc_label}"]')
+                lines.append(f'P_{index}_{j} --> C_{index}_{j}_{k}')
+
+                for m, step in enumerate(proc.steps.all(), 1):
+                    step_ct = _val(step.cycle_time)
+                    warning = ""
+                    if step_ct > prod_ct:
+                        warning = "<br><strong style='color:red;'>⚠️ High CT</strong>"
+
+                    step_label = (
+                        f"🧩 {step.name}<br><small>"
+                        f"CT: {step_ct}s<br>"
+                        f"Out/h: {_val(step.output_per_hour)}<br>"
+                        f"Ops: { _val(step.amount_of_operators)}"
+                        f"</small>{warning}"
+                    )
+                    lines.append(f'S_{index}_{j}_{k}_{m}["{step_label}"]')
+                    lines.append(f'C_{index}_{j}_{k} --> S_{index}_{j}_{k}_{m}')
+
+        return "\n".join(lines)
+
+
 
     def step_tree_view(self, request):
         locations = Location.objects.prefetch_related(
@@ -94,13 +145,18 @@ class StepAdmin(admin.ModelAdmin):
                     to_attr="filtered_productions",
                 )
             )
-            .filter(toniebox_productions__category__in=["Toniebox 2"])
+            .filter(toniebox_productions__category__in=["Toniebox 1", "Toniebox 2"])
             .distinct()
         )
+
+        mermaid_graphs = []
+        for idx, location in enumerate(locations, 1):
+            mermaid_graphs.append(self.build_mermaid_graph(location, idx))
 
         context = dict(
             self.admin_site.each_context(request),
             locations=locations,
+            mermaid_graphs=mermaid_graphs,
             title="Production Structure",
         )
         return TemplateResponse(request, "admin/vsm_lean_view.html", context)
@@ -122,12 +178,18 @@ class StepAdmin(admin.ModelAdmin):
             .distinct()
         )
 
+        mermaid_graphs = []
+        for idx, location in enumerate(locations, 1):
+            mermaid_graphs.append(self.build_mermaid_graph(location, idx))
+
         context = dict(
             self.admin_site.each_context(request),
             locations=locations,
+            mermaid_graphs=mermaid_graphs,
             title="Production Structure",
         )
         return TemplateResponse(request, "admin/vsm_lean_view_tonies.html", context)
+
 
 
 @admin.register(TonieboxProduction)
