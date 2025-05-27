@@ -59,8 +59,19 @@
 <!-- Mermaid JS -->
 <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({
-        startOnLoad: true
+
+    try {
+        mermaid.initialize({ startOnLoad: true });
+    } catch (e) {
+        console.error("Mermaid initialization error:", e);
+    }
+
+    document.querySelectorAll('.mermaid').forEach(el => {
+        try {
+            mermaid.init(undefined, el);
+        } catch (err) {
+            console.error("Mermaid render error:", err, el.textContent);
+        }
     });
 </script>
 
