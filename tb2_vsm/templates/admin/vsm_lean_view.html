@@ -75,88 +75,104 @@
     });
 </script>
 
-<!-- Zoom and Drag Logic -->
 <script>
-    let scale = 1;
-    const zoomStep = 0.2;
-
-    // We'll zoom/drag the currently hovered container's wrapper
-    let currentWrapper = null;
+    const zoomStates = new Map();
 
     document.querySelectorAll('.mermaid-container').forEach(container => {
-        container.addEventListener('mouseenter', () => {
-            currentWrapper = container.querySelector('.mermaid-wrapper');
+        const wrapper = container.querySelector('.mermaid-wrapper');
+        const containerId = container.dataset.location;
+
+        // Initialize zoom state for each container
+        zoomStates.set(containerId, {
+            scale: 1,
+            left: 0,
+            top: 0,
+            wrapper: wrapper
         });
-        container.addEventListener('mouseleave', () => {
-            currentWrapper = null;
+
+        wrapper.style.transform = `scale(1)`;
+        wrapper.style.left = '0px';
+        wrapper.style.top = '0px';
+
+        // Mouse enter to track which container is active
+        container.addEventListener('mouseenter', () => {
+            currentContainerId = containerId;
         });
     });
 
-    function setZoom() {
-        if (!currentWrapper) return;
-        currentWrapper.style.transform = `scale(${scale})`;
+    let currentContainerId = null;
+    let isDragging = false;
+    let startX, startY;
+
+    function setZoom(containerId) {
+        const state = zoomStates.get(containerId);
+        const wrapper = state.wrapper;
+        wrapper.style.transform = `scale(${state.scale})`;
+        wrapper.style.left = `${state.left}px`;
+        wrapper.style.top = `${state.top}px`;
     }
 
     function zoomIn() {
-        scale += zoomStep;
-        setZoom();
+        if (!currentContainerId) return;
+        const state = zoomStates.get(currentContainerId);
+        state.scale += 0.2;
+        setZoom(currentContainerId);
     }
 
     function zoomOut() {
-        scale = Math.max(0.2, scale - zoomStep);
-        setZoom();
+        if (!currentContainerId) return;
+        const state = zoomStates.get(currentContainerId);
+        state.scale = Math.max(0.2, state.scale - 0.2);
+        setZoom(currentContainerId);
     }
 
     function resetZoom() {
-        scale = 1;
-        if (!currentWrapper) return;
-        setZoom();
-        currentWrapper.style.left = '0px';
-        currentWrapper.style.top = '0px';
+        if (!currentContainerId) return;
+        const state = zoomStates.get(currentContainerId);
+        state.scale = 1;
+        state.left = 0;
+        state.top = 0;
+        setZoom(currentContainerId);
     }
 
-    // Dragging
-    let isDragging = false;
-    let startX, startY, initialLeft, initialTop;
+    document.querySelectorAll('.mermaid-container').forEach(container => {
+        const containerId = container.dataset.location;
+        const wrapper = container.querySelector('.mermaid-wrapper');
 
-    document.querySelectorAll('.mermaid-container').forEach(panContainer => {
-        panContainer.addEventListener('mousedown', (e) => {
+        container.addEventListener('mousedown', (e) => {
+            if (!containerId) return;
             isDragging = true;
+            currentContainerId = containerId;
             startX = e.clientX;
             startY = e.clientY;
-            const wrapper = panContainer.querySelector('.mermaid-wrapper');
-            currentWrapper = wrapper;
-            const rect = wrapper.getBoundingClientRect();
-            initialLeft = rect.left - panContainer.getBoundingClientRect().left;
-            initialTop = rect.top - panContainer.getBoundingClientRect().top;
-            panContainer.style.cursor = 'grabbing';
+            container.style.cursor = 'grabbing';
             e.preventDefault();
         });
 
-        panContainer.addEventListener('mouseup', (e) => {
+        container.addEventListener('mouseup', () => {
             isDragging = false;
-            panContainer.style.cursor = 'grab';
+            container.style.cursor = 'grab';
         });
 
-        panContainer.addEventListener('mouseleave', (e) => {
-            if (isDragging) {
-                isDragging = false;
-                panContainer.style.cursor = 'grab';
-            }
+        container.addEventListener('mouseleave', () => {
+            isDragging = false;
+            container.style.cursor = 'grab';
         });
-    });
 
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging || !currentWrapper) return;
-        // Find the current container of the wrapper
-        const panContainer = currentWrapper.closest('.mermaid-container');
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        currentWrapper.style.position = 'absolute';
-        currentWrapper.style.left = `${initialLeft + dx}px`;
-        currentWrapper.style.top = `${initialTop + dy}px`;
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging || !currentContainerId) return;
+            const state = zoomStates.get(currentContainerId);
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            state.left += dx;
+            state.top += dy;
+            startX = e.clientX;
+            startY = e.clientY;
+            setZoom(currentContainerId);
+        });
     });
 </script>
+
 
 <!-- Styles -->
 <style>
