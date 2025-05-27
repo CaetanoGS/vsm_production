@@ -8,68 +8,78 @@
     <button onclick="resetZoom()">🔄 Reset</button>
 </div>
 
-<div class="mermaid-container" id="panContainer">
-    <div class="mermaid-wrapper" id="mermaidWrapper">
+{% for location in locations %}
+<h3>🌍 {{ location.country.name }} ({{ location.supplier_name }})</h3>
+<div class="mermaid-container" id="panContainer{{ forloop.counter }}">
+    <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}">
         <div class="mermaid">
             graph TD
-            {% for location in locations %}
-            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
+            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}"]
+
             {% for production in location.toniebox_productions.all %}
-            {% if production.category == "Toniebox 2" %}
-            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{
-                production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{
-                production.minimum_output_per_hour }}</small>"]
+            {% if production.category == "Toniebox 1" or production.category == "Toniebox 2" %}
+            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name|truncatechars:25
+            }}<br>Ops: {{ production.total_operators }}"]
             LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+
             {% for process in production.processes.all %}
             PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
-            {{ process.name }}<br><small>Operators: {{ process.total_operators }}, CT: {{ process.average_cycle_time
-                }}s, Min Out/h: {{ process.minimum_output_per_hour }}</small>"]
+            {{ process.name|truncatechars:20 }}<br><small>Ops: {{ process.total_operators }}, CT: {{
+                process.average_cycle_time }}s</small>"]
             PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
             {% for step in process.steps.all %}
             STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
-            forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}<br><small>CT: {{ step.cycle_time
-                }}s<br>Out/h: {{ step.output_per_hour }}<br>Ops: {{ step.amount_of_operators }}</small>{% if
-            step.cycle_time > production.average_cycle_time %}<br><strong style='color:red;'>⚠️ High CT</strong>{% endif
-            %}"]
+            forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name|truncatechars:20 }}<br><small>CT: {{
+                step.cycle_time }}s<br>Out/h: {{ step.output_per_hour }}<br>Ops: {{ step.amount_of_operators
+                }}</small>{% if step.cycle_time > production.average_cycle_time %}<br><strong style='color:red;'>⚠️ High
+                CT</strong>{% endif %}"]
             PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
             {% empty %}
             PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
-            {{ process.name }}<br><i>No steps available</i>"]
+            {{ process.name|truncatechars:20 }}<br><i>No steps available</i>"]
             {% endfor %}
             {% empty %}
-            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes
-                available</i>"]
+            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name|truncatechars:25
+            }}<br><i>No processes available</i>"]
             {% endfor %}
             {% endif %}
             {% empty %}
             LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
             {% endfor %}
-            {% endfor %}
         </div>
     </div>
 </div>
+{% endfor %}
 
 <!-- Mermaid JS -->
 <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
     mermaid.initialize({
-        startOnLoad: true
+        startOnLoad: true,
+        maxTextSize: 200000  // Increased safely
+    });
+
+    // Debug text length
+    window.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('.mermaid').forEach((el, i) => {
+            console.log(`Diagram ${i + 1} length:`, el.textContent.length);
+        });
     });
 </script>
 
 <!-- Zoom and Drag Logic -->
 <script>
     let scale = 1;
-    const zoomStep = 3;
-    const wrapper = document.getElementById('mermaidWrapper');
-    const panContainer = document.getElementById('panContainer');
+    const zoomStep = 0.1;
 
     function setZoom() {
-        wrapper.style.transform = `scale(${scale})`;
+        document.querySelectorAll('.mermaid-wrapper').forEach(wrapper => {
+            wrapper.style.transform = `scale(${scale})`;
+        });
     }
 
     function zoomIn() {
@@ -85,36 +95,41 @@
     function resetZoom() {
         scale = 1;
         setZoom();
-        wrapper.style.left = '0px';
-        wrapper.style.top = '0px';
+        document.querySelectorAll('.mermaid-wrapper').forEach(wrapper => {
+            wrapper.style.left = '0px';
+            wrapper.style.top = '0px';
+        });
     }
 
-    // Dragging
-    let isDragging = false;
-    let startX, startY, initialLeft, initialTop;
+    // Drag logic for all containers
+    document.querySelectorAll('[id^="panContainer"]').forEach(panContainer => {
+        const wrapper = panContainer.querySelector('.mermaid-wrapper');
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
 
-    panContainer.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        const rect = wrapper.getBoundingClientRect();
-        initialLeft = rect.left - panContainer.getBoundingClientRect().left;
-        initialTop = rect.top - panContainer.getBoundingClientRect().top;
-        panContainer.style.cursor = 'grabbing';
-    });
+        panContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = wrapper.getBoundingClientRect();
+            initialLeft = rect.left - panContainer.getBoundingClientRect().left;
+            initialTop = rect.top - panContainer.getBoundingClientRect().top;
+            panContainer.style.cursor = 'grabbing';
+        });
 
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        wrapper.style.position = 'absolute';
-        wrapper.style.left = `${initialLeft + dx}px`;
-        wrapper.style.top = `${initialTop + dy}px`;
-    });
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = `${initialLeft + dx}px`;
+            wrapper.style.top = `${initialTop + dy}px`;
+        });
 
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        panContainer.style.cursor = 'default';
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            panContainer.style.cursor = 'default';
+        });
     });
 </script>
 
@@ -125,6 +140,7 @@
         position: relative;
         border: 1px solid #ccc;
         height: 80vh;
+        margin-bottom: 40px;
         background: #f9f9f9;
         cursor: grab;
     }
