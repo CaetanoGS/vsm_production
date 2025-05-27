@@ -143,7 +143,7 @@ class StepAdmin(admin.ModelAdmin):
 
     def vsm_lean_view(self, request):
         toniebox_productions = TonieboxProduction.objects.filter(
-            active=True, category__in=["Toniebox 2"]
+            active=True, category__in=["Toniebox 1", "Toniebox 2"]
         ).prefetch_related("processes__steps")
 
         locations = (
