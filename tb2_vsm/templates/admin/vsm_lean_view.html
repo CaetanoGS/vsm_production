@@ -8,18 +8,21 @@
     <button onclick="resetZoom()">🔄 Reset</button>
 </div>
 
-<div class="mermaid-container" id="panContainer">
-    <div class="mermaid-wrapper" id="mermaidWrapper">
-        <div class="mermaid">
+{% for location in locations %}
+<div class="mermaid-container" style="height: 50vh; overflow:auto; margin-bottom: 2rem;"
+    data-location="{{ forloop.counter }}">
+    <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}">
+        <div class="mermaid" id="mermaid{{ forloop.counter }}">
             graph TD
-            {% for location in locations %}
             LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
+
             {% for production in location.toniebox_productions.all %}
             {% if production.category == "Toniebox 2" %}
             PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{
                 production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{
                 production.minimum_output_per_hour }}</small>"]
             LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
+
             {% for process in production.processes.all %}
             PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
             {{ process.name }}<br><small>Operators: {{ process.total_operators }}, CT: {{ process.average_cycle_time
@@ -48,10 +51,10 @@
             {% empty %}
             LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
             {% endfor %}
-            {% endfor %}
         </div>
     </div>
 </div>
+{% endfor %}
 
 <!-- Mermaid JS -->
 <script type="module">
@@ -64,12 +67,23 @@
 <!-- Zoom and Drag Logic -->
 <script>
     let scale = 1;
-    const zoomStep = 3;
-    const wrapper = document.getElementById('mermaidWrapper');
-    const panContainer = document.getElementById('panContainer');
+    const zoomStep = 0.2;
+
+    // We'll zoom/drag the currently hovered container's wrapper
+    let currentWrapper = null;
+
+    document.querySelectorAll('.mermaid-container').forEach(container => {
+        container.addEventListener('mouseenter', () => {
+            currentWrapper = container.querySelector('.mermaid-wrapper');
+        });
+        container.addEventListener('mouseleave', () => {
+            currentWrapper = null;
+        });
+    });
 
     function setZoom() {
-        wrapper.style.transform = `scale(${scale})`;
+        if (!currentWrapper) return;
+        currentWrapper.style.transform = `scale(${scale})`;
     }
 
     function zoomIn() {
@@ -78,55 +92,71 @@
     }
 
     function zoomOut() {
-        scale = Math.max(zoomStep, scale - zoomStep);
+        scale = Math.max(0.2, scale - zoomStep);
         setZoom();
     }
 
     function resetZoom() {
         scale = 1;
+        if (!currentWrapper) return;
         setZoom();
-        wrapper.style.left = '0px';
-        wrapper.style.top = '0px';
+        currentWrapper.style.left = '0px';
+        currentWrapper.style.top = '0px';
     }
 
     // Dragging
     let isDragging = false;
     let startX, startY, initialLeft, initialTop;
 
-    panContainer.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        const rect = wrapper.getBoundingClientRect();
-        initialLeft = rect.left - panContainer.getBoundingClientRect().left;
-        initialTop = rect.top - panContainer.getBoundingClientRect().top;
-        panContainer.style.cursor = 'grabbing';
+    document.querySelectorAll('.mermaid-container').forEach(panContainer => {
+        panContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const wrapper = panContainer.querySelector('.mermaid-wrapper');
+            currentWrapper = wrapper;
+            const rect = wrapper.getBoundingClientRect();
+            initialLeft = rect.left - panContainer.getBoundingClientRect().left;
+            initialTop = rect.top - panContainer.getBoundingClientRect().top;
+            panContainer.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+
+        panContainer.addEventListener('mouseup', (e) => {
+            isDragging = false;
+            panContainer.style.cursor = 'grab';
+        });
+
+        panContainer.addEventListener('mouseleave', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                panContainer.style.cursor = 'grab';
+            }
+        });
     });
 
     document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
+        if (!isDragging || !currentWrapper) return;
+        // Find the current container of the wrapper
+        const panContainer = currentWrapper.closest('.mermaid-container');
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
-        wrapper.style.position = 'absolute';
-        wrapper.style.left = `${initialLeft + dx}px`;
-        wrapper.style.top = `${initialTop + dy}px`;
-    });
-
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        panContainer.style.cursor = 'default';
+        currentWrapper.style.position = 'absolute';
+        currentWrapper.style.left = `${initialLeft + dx}px`;
+        currentWrapper.style.top = `${initialTop + dy}px`;
     });
 </script>
 
 <!-- Styles -->
 <style>
     .mermaid-container {
-        overflow: hidden;
+        overflow: auto;
         position: relative;
         border: 1px solid #ccc;
-        height: 80vh;
+        height: 50vh;
         background: #f9f9f9;
         cursor: grab;
+        margin-bottom: 1.5rem;
     }
 
     .mermaid-wrapper {
@@ -139,7 +169,7 @@
 
     .mermaid {
         font-size: 12px;
-        min-width: 1000px;
+        min-width: 800px;
     }
 
     .zoom-controls {
