@@ -2,59 +2,32 @@
 
 {% block content %}
 
-<div class="zoom-controls">
-    <button onclick="zoomIn()">➕ Zoom In</button>
-    <button onclick="zoomOut()">➖ Zoom Out</button>
-    <button onclick="resetZoom()">🔄 Reset</button>
-</div>
-
 {% for location in locations %}
-<div class="mermaid-container" style="height: 50vh; overflow:auto; margin-bottom: 2rem;"
-    data-location="{{ forloop.counter }}">
+<div class="mermaid-container" style="height: 50vh; overflow:auto; margin-bottom: 2rem;">
     <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}">
         <div class="mermaid" id="mermaid{{ forloop.counter }}">
             graph TD
             LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br>({{ location.supplier_name }})"]
 
             {% for production in location.toniebox_productions.all %}
-            {% if production.category == "Toniebox 2" %}
-            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><small>Operators: {{
-                production.total_operators|default:0 }}, CT: {{ production.average_cycle_time }}s, Min Out/h: {{
-                production.minimum_output_per_hour }}</small>"]
+            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}"]
             LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
             {% for process in production.processes.all %}
             PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
-            {{ process.name }}<br><small>Operators: {{ process.total_operators }}, CT: {{ process.average_cycle_time
-                }}s, Min Out/h: {{ process.minimum_output_per_hour }}</small>"]
+            {{ process.name }}"]
             PROD{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }} --> PROC{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
 
-            {% if process.steps.all %}
             {% for step in process.steps.all %}
             STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
-            forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}<br><small>CT: {{ step.cycle_time
-                }}s<br>Out/h: {{ step.output_per_hour }}<br>Ops: {{ step.amount_of_operators }}</small>{% if
-            step.cycle_time > production.average_cycle_time %}<br><strong style='color:red;'>⚠️ High CT</strong>{% endif
-            %}"]
+            forloop.parentloop.counter }}_{{ forloop.counter }}["🧩 {{ step.name }}"]
             PROC{{ forloop.parentloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.counter }} --> STEP{{ forloop.parentloop.parentloop.parentloop.counter }}_{{
             forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}
             {% endfor %}
-            {% else %}
-            PROC{{ forloop.parentloop.parentloop.counter }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}["⚙️
-            {{ process.name }}<br><i>No steps available</i>"]
-            {% endif %}
             {% endfor %}
-
-            {% else %}
-            PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["📦 {{ production.name }}<br><i>No processes
-                available</i>"]
-            {% endif %}
             {% endfor %}
-            {% if not location.toniebox_productions.all %}
-            LOC{{ forloop.counter }}["🌍 {{ location.country.name }}<br><i>No productions available</i>"]
-            {% endif %}
         </div>
     </div>
 </div>
@@ -64,114 +37,10 @@
 <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
 
-    try {
-        mermaid.initialize({ startOnLoad: true });
-    } catch (e) {
-        console.error("Mermaid initialization error:", e);
-    }
+    mermaid.initialize({ startOnLoad: true });
 
     document.querySelectorAll('.mermaid').forEach(el => {
-        try {
-            mermaid.init(undefined, el);
-        } catch (err) {
-            console.error("Mermaid render error:", err, el.textContent);
-        }
-    });
-</script>
-
-<script>
-    const zoomStates = new Map();
-
-    document.querySelectorAll('.mermaid-container').forEach(container => {
-        const wrapper = container.querySelector('.mermaid-wrapper');
-        const containerId = container.dataset.location;
-
-        zoomStates.set(containerId, {
-            scale: 1,
-            left: 0,
-            top: 0,
-            wrapper: wrapper
-        });
-
-        wrapper.style.transform = `scale(1)`;
-        wrapper.style.left = '0px';
-        wrapper.style.top = '0px';
-
-        container.addEventListener('mouseenter', () => {
-            currentContainerId = containerId;
-        });
-    });
-
-    let currentContainerId = null;
-    let isDragging = false;
-    let startX, startY;
-
-    function setZoom(containerId) {
-        const state = zoomStates.get(containerId);
-        const wrapper = state.wrapper;
-        wrapper.style.transform = `scale(${state.scale})`;
-        wrapper.style.left = `${state.left}px`;
-        wrapper.style.top = `${state.top}px`;
-    }
-
-    function zoomIn() {
-        if (!currentContainerId) return;
-        const state = zoomStates.get(currentContainerId);
-        state.scale += 0.2;
-        setZoom(currentContainerId);
-    }
-
-    function zoomOut() {
-        if (!currentContainerId) return;
-        const state = zoomStates.get(currentContainerId);
-        state.scale = Math.max(0.2, state.scale - 0.2);
-        setZoom(currentContainerId);
-    }
-
-    function resetZoom() {
-        if (!currentContainerId) return;
-        const state = zoomStates.get(currentContainerId);
-        state.scale = 1;
-        state.left = 0;
-        state.top = 0;
-        setZoom(currentContainerId);
-    }
-
-    document.querySelectorAll('.mermaid-container').forEach(container => {
-        const containerId = container.dataset.location;
-        const wrapper = container.querySelector('.mermaid-wrapper');
-
-        container.addEventListener('mousedown', (e) => {
-            if (!containerId) return;
-            isDragging = true;
-            currentContainerId = containerId;
-            startX = e.clientX;
-            startY = e.clientY;
-            container.style.cursor = 'grabbing';
-            e.preventDefault();
-        });
-
-        container.addEventListener('mouseup', () => {
-            isDragging = false;
-            container.style.cursor = 'grab';
-        });
-
-        container.addEventListener('mouseleave', () => {
-            isDragging = false;
-            container.style.cursor = 'grab';
-        });
-
-        container.addEventListener('mousemove', (e) => {
-            if (!isDragging || !currentContainerId) return;
-            const state = zoomStates.get(currentContainerId);
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            state.left += dx;
-            state.top += dy;
-            startX = e.clientX;
-            startY = e.clientY;
-            setZoom(currentContainerId);
-        });
+        mermaid.init(undefined, el);
     });
 </script>
 
@@ -182,14 +51,12 @@
         border: 1px solid #ccc;
         height: 50vh;
         background: #f9f9f9;
-        cursor: grab;
         margin-bottom: 1.5rem;
     }
 
     .mermaid-wrapper {
         transform-origin: 0 0;
-        transition: transform 0.2s ease;
-        position: absolute;
+        position: relative;
         top: 0;
         left: 0;
     }
@@ -197,24 +64,6 @@
     .mermaid {
         font-size: 12px;
         min-width: 800px;
-    }
-
-    .zoom-controls {
-        margin-bottom: 1rem;
-    }
-
-    .zoom-controls button {
-        margin-right: 0.5rem;
-        padding: 0.4rem 0.8rem;
-        background-color: #1d72b8;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .zoom-controls button:hover {
-        background-color: #155d8b;
     }
 </style>
 
