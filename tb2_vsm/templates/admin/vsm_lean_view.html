@@ -14,7 +14,7 @@
             {% for location in locations %}
             LOC{{ forloop.counter }}["{{ location.country.name|escapejs }} ({{ location.supplier_name|escapejs }})"]
             {% for production in location.toniebox_productions.all %}
-            {% if production.category in ("Toniebox 1", "Toniebox 2") %}
+            {% if production.category == "Toniebox 1" or production.category == "Toniebox 2" %}
             PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}["{{ production.name|escapejs }}\nOps: {{
             production.total_operators }}"]
             LOC{{ forloop.parentloop.counter }} --> PROD{{ forloop.parentloop.counter }}_{{ forloop.counter }}
