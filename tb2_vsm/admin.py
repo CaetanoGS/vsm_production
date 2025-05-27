@@ -63,11 +63,14 @@ class StepAdmin(admin.ModelAdmin):
 
         lines = ["graph TD"]
 
-        # Location metrics
-        total_ops = sum(_val(p.total_operators) for p in location.toniebox_productions.all())
-        avg_cts = [_val(p.average_cycle_time) for p in location.toniebox_productions.all()]
+        # Filter only active TonieboxProductions in this location
+        active_productions = location.toniebox_productions.filter(active=True)
+
+        # Location metrics calculated only from active productions
+        total_ops = sum(_val(p.total_operators) for p in active_productions)
+        avg_cts = [_val(p.average_cycle_time) for p in active_productions]
         avg_ct = round(sum(avg_cts) / len(avg_cts), 2) if avg_cts else 0
-        min_out = min((_val(p.minimum_output_per_hour) for p in location.toniebox_productions.all()), default=0)
+        min_out = min((_val(p.minimum_output_per_hour) for p in active_productions), default=0)
 
         loc_label = (
             f"🌍 {location.country.name} <br>({location.supplier_name})<br><small>"
@@ -76,9 +79,9 @@ class StepAdmin(admin.ModelAdmin):
         )
         lines.append(f'L_{index}["{loc_label}"]')
 
-        for j, prod in enumerate(location.toniebox_productions.all(), 1):
+        for j, prod in enumerate(active_productions, 1):
             prod_ops = _val(prod.total_operators)
-            prod_ct  = _val(prod.average_cycle_time)
+            prod_ct = _val(prod.average_cycle_time)
             prod_min = _val(prod.minimum_output_per_hour)
             prod_label = (
                 f"📦 {prod.name}<br><small>"
@@ -90,7 +93,7 @@ class StepAdmin(admin.ModelAdmin):
 
             for k, proc in enumerate(prod.processes.all(), 1):
                 proc_ops = _val(proc.total_operators)
-                proc_ct  = _val(proc.average_cycle_time)
+                proc_ct = _val(proc.average_cycle_time)
                 proc_min = _val(proc.minimum_output_per_hour)
                 proc_label = (
                     f"⚙️ {proc.name}<br><small>"
@@ -104,14 +107,11 @@ class StepAdmin(admin.ModelAdmin):
                     step_ct = _val(step.cycle_time)
                     warning = ""
                     if step_ct > prod_ct:
-                        warning = "<br><strong style='color:red;'>⚠️ High CT</strong>"
-
+                        warning = '⚠️ '
                     step_label = (
-                        f"🧩 {step.name}<br><small>"
-                        f"CT: {step_ct}s<br>"
-                        f"Out/h: {_val(step.output_per_hour)}<br>"
-                        f"Ops: { _val(step.amount_of_operators)}"
-                        f"</small>{warning}"
+                        f"{warning}🔧 {step.name}<br><small>"
+                        f"CT: {step_ct}s, Ops: {step.amount_of_operators}"
+                        "</small>"
                     )
                     lines.append(f'S_{index}_{j}_{k}_{m}["{step_label}"]')
                     lines.append(f'C_{index}_{j}_{k} --> S_{index}_{j}_{k}_{m}')
