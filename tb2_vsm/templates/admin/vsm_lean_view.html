@@ -2,7 +2,8 @@
 
 {% block content %}
 
-{% for graph in mermaid_graphs %}
+{% for graph, location in mermaid_graphs %}
+<h3 style="margin-top: 2rem;">Production at {{ location.country.name }} ({{ location.supplier_name }})</h3>
 <div class="mermaid-container" style="height: 50vh; overflow:auto; margin-bottom: 2rem;">
     <div class="mermaid-wrapper" id="mermaidWrapper{{ forloop.counter }}">
         <div class="mermaid" id="mermaid{{ forloop.counter }}">
@@ -12,9 +13,6 @@
 </div>
 {% endfor %}
 
-
-
-
 <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
     mermaid.initialize({ startOnLoad: true });
@@ -23,7 +21,6 @@
         mermaid.init(undefined, el);
     });
 </script>
-
 
 <style>
     .mermaid-container {
@@ -46,6 +43,12 @@
         font-size: 12px;
         min-width: 800px;
         white-space: pre;
+    }
+
+    h3 {
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
     }
 </style>
 

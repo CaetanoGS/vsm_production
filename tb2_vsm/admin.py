@@ -151,7 +151,8 @@ class StepAdmin(admin.ModelAdmin):
 
         mermaid_graphs = []
         for idx, location in enumerate(locations, 1):
-            mermaid_graphs.append(self.build_mermaid_graph(location, idx))
+            graph = self.build_mermaid_graph(location, idx)
+            mermaid_graphs.append((graph, location))
 
         context = dict(
             self.admin_site.each_context(request),
@@ -160,6 +161,7 @@ class StepAdmin(admin.ModelAdmin):
             title="Production Structure",
         )
         return TemplateResponse(request, "admin/vsm_lean_view.html", context)
+
 
     def vsm_lean_view_tonies(self, request):
         toniebox_productions = TonieboxProduction.objects.exclude(
@@ -180,7 +182,8 @@ class StepAdmin(admin.ModelAdmin):
 
         mermaid_graphs = []
         for idx, location in enumerate(locations, 1):
-            mermaid_graphs.append(self.build_mermaid_graph(location, idx))
+            graph = self.build_mermaid_graph(location, idx)
+            mermaid_graphs.append((graph, location))
 
         context = dict(
             self.admin_site.each_context(request),
