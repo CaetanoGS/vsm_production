@@ -236,7 +236,7 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
 
 @admin.register(Process)
 class ProcessAdmin(admin.ModelAdmin):
-    list_display = ["name", "production_lines"]
+    list_display = ["name", "production_lines", "locations"]
     list_filter = ["toniebox_productions"]
 
     def production_lines(self, obj):
@@ -248,6 +248,15 @@ class ProcessAdmin(admin.ModelAdmin):
         return format_html(", ".join(links))
 
     production_lines.short_description = "Production Lines"
+
+    def locations(self, obj):
+        locations = set()
+        for prod in obj.toniebox_productions.all():
+            if prod.location:
+                locations.add(prod.location)
+        return format_html(", ".join(str(loc) for loc in locations)) or "—"
+
+    locations.short_description = "Locations"
 
 
 @admin.register(Location)
