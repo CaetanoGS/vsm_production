@@ -250,11 +250,14 @@ class ProcessAdmin(admin.ModelAdmin):
     production_lines.short_description = "Production Lines"
 
     def locations(self, obj):
-        locations = set()
+        links = {}
         for prod in obj.toniebox_productions.all():
-            if prod.location:
-                locations.add(prod.location)
-        return format_html(", ".join(str(loc) for loc in locations)) or "—"
+            location = prod.location
+            if location and location.id not in links:
+                url = reverse("admin:tb2_vsm_location_change", args=[location.id])
+                name = str(location)
+                links[location.id] = f'<a href="{url}">{name}</a>'
+        return format_html(", ".join(links.values())) or "—"
 
     locations.short_description = "Locations"
 
