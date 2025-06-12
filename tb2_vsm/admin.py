@@ -304,6 +304,7 @@ class LocationAdmin(admin.ModelAdmin):
         "active",
     ]
     list_filter = ["country"]
+    exclude = ["toniebox_production"]
 
     def production_lines_count(self, obj):
         return obj.toniebox_productions.count()
