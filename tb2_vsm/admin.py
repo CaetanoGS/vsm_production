@@ -9,11 +9,30 @@ from .models import Location
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Prefetch
+from django.contrib.admin import SimpleListFilter
+from tb2_vsm.models import Location
 
 
 admin.site.site_header = "PSM Production Hub"
 admin.site.site_title = "PSM Production Hub"
 admin.site.index_title = "PSM Production Hub"
+
+
+class ProductionLocationFilter(SimpleListFilter):
+    title = "location"
+    parameter_name = "location"
+
+    def lookups(self, request, model_admin):
+        from tb2_vsm.models import Location
+
+        return [(loc.id, str(loc)) for loc in Location.objects.all()]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(
+                process__toniebox_productions__location__id=self.value()
+            ).distinct()
+        return queryset
 
 
 @admin.register(Step)
@@ -25,9 +44,20 @@ class StepAdmin(admin.ModelAdmin):
         "output_per_hour",
         "order",
         "process_name",
+        "location",
     ]
-    list_filter = ["process"]
+    list_filter = ["process", ProductionLocationFilter]
     exclude = ["output_per_hour"]
+
+    @admin.display(description="Location")
+    def location(self, obj):
+        if obj.process:
+            productions = obj.process.toniebox_productions.all()
+            if productions:
+                # Just show the first location if multiple are linked
+                location = productions[0].location
+                return str(location) if location else "-"
+        return "-"
 
     def process_name(self, obj):
         return obj.process.name if obj.process else "-"
