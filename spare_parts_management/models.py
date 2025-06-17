@@ -28,25 +28,17 @@ class BackupEquipment(models.Model):
 
     TONIEBOX_1 = "Toniebox 1"
     TONIEBOX_2 = "Toniebox 2"
-    TONIES = "Tonies"
-    BOOK_TONIES = "Book Tonies"
-    CLEVER_TONIES = "Clever Tonies"
-    DISK = "Disk"
-    CONTROLLER = "Controller"
-    NIGHT_LIGHT = "Night Light"
-    SOFT_TONIES = "Soft Tonies"
+    TMS = "TMS"
+    MTS = " MTS"
+    TMES = "TMES"
     OTHER = "Other"
 
     CATEGORY_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
         (TONIEBOX_2, "Toniebox 2"),
-        (TONIES, "Tonies"),
-        (BOOK_TONIES, "Book Tonies"),
-        (CLEVER_TONIES, "Clever Tonies"),
-        (DISK, "Disk"),
-        (CONTROLLER, "Controller"),
-        (NIGHT_LIGHT, "Night Light"),
-        (SOFT_TONIES, "Soft Tonies"),
+        (MTS, "MTS"),
+        (TMS, "TMS"),
+        (TMES, "TMES"),
         (OTHER, "Other"),
     ]
 
