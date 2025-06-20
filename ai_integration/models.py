@@ -14,4 +14,3 @@ class ProcessImprovementSuggestion(models.Model):
 
     def __str__(self):
         return f"Suggestion for {self.location} at {self.created_at}"
-

@@ -3,6 +3,7 @@ from django.db.models import Max
 from ai_integration.models import ProcessImprovementSuggestion
 from tb2_vsm.models import Location, Step, TonieboxProduction
 
+
 def generate_improvement_if_needed(location: Location):
     latest_suggestion = location.improvement_suggestions.first()
 
@@ -15,14 +16,17 @@ def generate_improvement_if_needed(location: Location):
     if not processes:
         return latest_suggestion
 
+    latest_step_update = Step.objects.filter(process__in=processes).aggregate(
+        latest=Max("updated_at")
+    )["latest"]
 
-    latest_step_update = Step.objects.filter(
-        process__in=processes
-    ).aggregate(latest=Max("updated_at"))["latest"]
-
-    if latest_suggestion and latest_step_update and latest_step_update <= latest_suggestion.created_at:
+    if (
+        latest_suggestion
+        and latest_step_update
+        and latest_step_update <= latest_suggestion.created_at
+    ):
         return latest_suggestion
-    
+
     suggestion_html = generate_analysis_html(location)
     suggestion = ProcessImprovementSuggestion.objects.create(
         location=location, suggestion_output=suggestion_html

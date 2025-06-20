@@ -26,31 +26,45 @@ def call_chatgpt(prompt, model="gpt-4o", temperature=0.2):
 
 def analyze_processes_per_location(location: Location):
     prompt = """
-You will receive a list of production process steps grouped by location. For each location:
+You are an expert in production optimization and Six Sigma (Black Belt level). You will receive a list of production process steps grouped by location. Your goal is to analyze them using the following criteria:
 
-1. Analyze each step's **cycle time** and **number of operators**.
-2. Perform a **global benchmark comparison**.
-3. If the performance is **below global standards**, give:
-   - **Improvement suggestions**
-   - **How** the improvements can be made
-   - A **target** to align with global standards.
+### Step-by-Step Analysis
 
-Example format per location:
+For each location:
+1. Evaluate **each step's cycle time** and **number of operators**.
+2. Compare these values with **global industry benchmarks**.
+3. Calculate and evaluate the **average cycle time across all steps** to assess alignment with the **takt time** of the overall process.
+4. Identify any steps that are **bottlenecks** or **underperforming** relative to:
+   - Global standards
+   - Internal takt time targets
+
+### For any step below target:
+- Flag it clearly (❌ Below Standard)
+- Provide a **specific improvement suggestion**
+- Describe **how** the improvement could be implemented
+- Define a **target cycle time** and **target number of operators** aligned with global best practices and the takt time
+
 ---
+
+### Output Format Example:
+
 **Location: [Location Name]**
 
-Step 1: [Step Name]
-- Cycle Time: X seconds
-- Operators: Y
-- Global Standard: Z
-- ✅ On target OR ❌ Below standard
-- Suggestion: [...]
-- How: [...]
-- Target: [...]
+Step 1: [Step Name]  
+- Cycle Time: X seconds  
+- Operators: Y  
+- Global Standard: Z  
+- Takt Time Alignment: ✅ / ❌  
+- Global Benchmark: ✅ On target / ❌ Below standard  
+- Suggestion: [...]  
+- How: [...]  
+- Target: [Cycle Time], [Operators]  
 
-Repeat for all steps.
+(Repeat for each step)
 
-Now, analyze the following process steps grouped by location:
+---
+
+Now, analyze the following production steps grouped by location:
 {steps}
 """
 
