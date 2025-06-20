@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "django_countries",
     "spare_parts_management",
     "maintenance",
-    "ai_integration",
 ]
 
 MIDDLEWARE = [
