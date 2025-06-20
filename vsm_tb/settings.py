@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django_countries",
     "spare_parts_management",
     "maintenance",
+    "ai_integration",
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)

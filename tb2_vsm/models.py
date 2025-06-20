@@ -125,6 +125,7 @@ class Step(models.Model):
         related_name="steps",
         default=None,
     )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["order"]
