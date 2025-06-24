@@ -16,7 +16,7 @@ class BuyerAdmin(admin.ModelAdmin):
 
 @admin.register(Producer)
 class ProducerAdmin(admin.ModelAdmin):
-    list_display = ["name", "telephone_link", "email_link"]
+    list_display = ["name", "telephone_link", "email_link", "ticket_system_link"]
 
     def telephone_link(self, obj):
         return format_html('<a href="tel:{}">{}</a>', obj.telephone, obj.telephone)
@@ -27,6 +27,15 @@ class ProducerAdmin(admin.ModelAdmin):
         return format_html('<a href="mailto:{}">{}</a>', obj.email, obj.email)
 
     email_link.short_description = "Email"
+
+    def ticket_system_link(self, obj):
+        if obj.ticket_system:
+            return format_html(
+                '<a href="{0}" target="_blank">{0}</a>', obj.ticket_system
+            )
+        return "-"
+
+    ticket_system_link.short_description = "Ticket System"
 
 
 @admin.register(BackupEquipment)

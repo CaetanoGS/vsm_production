@@ -20,9 +20,7 @@ class ProducerModelTests(TestCase):
 
     def test_ticket_system_accepts_url(self):
         url = "https://tickets.example.com"
-        producer = Producer.objects.create(
-            name="With Ticket System", ticket_system=url
-        )
+        producer = Producer.objects.create(name="With Ticket System", ticket_system=url)
         self.assertEqual(producer.ticket_system, url)
 
 
