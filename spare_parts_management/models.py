@@ -4,8 +4,9 @@ from tb2_vsm.models import Location
 
 class Producer(models.Model):
     name = models.CharField(max_length=255)
-    telephone = models.CharField(max_length=50)
-    email = models.EmailField()
+    telephone = models.CharField(max_length=50, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    ticket_system = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.name

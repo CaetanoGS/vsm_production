@@ -11,6 +11,20 @@ class ProducerModelTests(TestCase):
         )
         self.assertEqual(str(producer), "Test Producer")
 
+    def test_optional_fields_can_be_blank(self):
+        producer = Producer.objects.create(name="Optional Fields Producer")
+        self.assertEqual(producer.name, "Optional Fields Producer")
+        self.assertIsNone(producer.telephone)
+        self.assertIsNone(producer.email)
+        self.assertIsNone(producer.ticket_system)
+
+    def test_ticket_system_accepts_url(self):
+        url = "https://tickets.example.com"
+        producer = Producer.objects.create(
+            name="With Ticket System", ticket_system=url
+        )
+        self.assertEqual(producer.ticket_system, url)
+
 
 class BuyerModelTests(TestCase):
     def test_str_method_returns_full_name(self):
