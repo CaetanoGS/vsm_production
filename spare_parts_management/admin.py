@@ -52,6 +52,7 @@ class BackupEquipmentAdmin(admin.ModelAdmin):
         "producer_link",
         "buyer_email_link",
         "category",
+        "notes"
     ]
 
     list_filter = ["status", "location", "category"]

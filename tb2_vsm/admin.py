@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.template.response import TemplateResponse
-from .models import Step, Process, TonieboxProduction, Location, FactoryCloud, Equipment
+from .models import EquipmentSerial, Step, Process, TonieboxProduction, Location, FactoryCloud, Equipment
 
 from django.urls import path
 from django.template.response import TemplateResponse
@@ -365,7 +365,6 @@ class FactoryCloudAdmin(admin.ModelAdmin):
 class EquipmentAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "serial_number",
         "category",
         "name",
         "location",
@@ -373,6 +372,29 @@ class EquipmentAdmin(admin.ModelAdmin):
         "active",
         "production_type",
         "quantity",
+        "serial_numbers_display",
     ]
     list_filter = ["location", "category", "backup", "active", "production_type"]
-    search_fields = ["serial_number", "name", "active", "production_type"]
+    search_fields = ["name", "active", "production_type"]
+    readonly_fields = [
+        "serial_numbers_display",
+    ]
+    def serial_numbers_display(self, obj):
+        serials = obj.serials.all()
+        if not serials.exists():
+            return "-"
+        return ", ".join(s.serial_number for s in serials)
+
+    serial_numbers_display.short_description = "Serial Numbers"
+
+
+class EquipmentSerialProxy(EquipmentSerial):
+    class Meta:
+        proxy = True
+        verbose_name = "Equipment Serial Number"
+        verbose_name_plural = "Equipment Serial Numbers"
+
+@admin.register(EquipmentSerialProxy)
+class EquipmentSerialAdmin(admin.ModelAdmin):
+    list_display = ('serial_number', 'equipment')
+    search_fields = ('serial_number', 'equipment__name')

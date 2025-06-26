@@ -66,6 +66,8 @@ class BackupEquipment(models.Model):
         null=True,
         blank=True,
     )
+    notes = models.TextField(blank=True, null=True, help_text="Optional notes of the backup equipment")
+
 
     def save(self, *args, **kwargs):
         if self.current_quantity <= 1:
