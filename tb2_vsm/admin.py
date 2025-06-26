@@ -395,5 +395,20 @@ class EquipmentSerialProxy(EquipmentSerial):
 
 @admin.register(EquipmentSerialProxy)
 class EquipmentSerialAdmin(admin.ModelAdmin):
-    list_display = ('serial_number', 'equipment')
+    list_display = [
+        "serial_number",
+        "equipment",
+        "equipment_location",
+        "is_backup_equipment",
+    ]
     search_fields = ('serial_number', 'equipment__name')
+
+    @admin.display(description="Location")
+    def equipment_location(self, obj):
+        if obj.equipment and obj.equipment.location:
+            return str(obj.equipment.location)
+        return "—"
+
+    @admin.display(boolean=True, description="Is Backup")
+    def is_backup_equipment(self, obj):
+        return obj.equipment.backup if obj.equipment else None
