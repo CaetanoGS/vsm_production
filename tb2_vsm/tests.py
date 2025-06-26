@@ -149,18 +149,16 @@ class EquipmentModelTests(TestCase):
         eq = Equipment.objects.create(
             category=Equipment.LASER_MARKER,
             name="Laser1",
-            serial_number="12345",
             location=self.loc,
         )
-        self.assertEqual(str(eq), "Laser1 (12345)")
+        self.assertEqual(str(eq), "Laser1 ()")
 
         eq2 = Equipment.objects.create(
             category=Equipment.COMPUTER,
             name=None,
-            serial_number=None,
             location=self.loc,
         )
-        self.assertEqual(str(eq2), "Computer (No Serial)")
+        self.assertEqual(str(eq2), "Computer ()")
 
     def test_save_sets_active_based_on_backup(self):
         eq = Equipment.objects.create(

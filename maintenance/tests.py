@@ -16,7 +16,6 @@ class MaintenanceModelTest(TestCase):
             category=Equipment.OTHER,
             location=self.location,
             quantity=1,
-            serial_number="SN12345",
             production_type=Equipment.OTHER,
         )
         self.today = timezone.now().date()
