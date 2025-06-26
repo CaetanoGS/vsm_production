@@ -218,7 +218,6 @@ class StepAdmin(admin.ModelAdmin):
                     to_attr="filtered_productions",
                 )
             )
-            .filter(toniebox_productions__category__in=["Tonies"])
             .distinct()
         )
 
