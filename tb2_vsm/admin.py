@@ -1,7 +1,15 @@
 from django.contrib import admin
 from django.urls import path
 from django.template.response import TemplateResponse
-from .models import EquipmentSerial, Step, Process, TonieboxProduction, Location, FactoryCloud, Equipment
+from .models import (
+    EquipmentSerial,
+    Step,
+    Process,
+    TonieboxProduction,
+    Location,
+    FactoryCloud,
+    Equipment,
+)
 
 from django.urls import path
 from django.template.response import TemplateResponse
@@ -378,6 +386,7 @@ class EquipmentAdmin(admin.ModelAdmin):
     readonly_fields = [
         "serial_numbers_display",
     ]
+
     def serial_numbers_display(self, obj):
         serials = obj.serials.all()
         if not serials.exists():
@@ -393,6 +402,7 @@ class EquipmentSerialProxy(EquipmentSerial):
         verbose_name = "Equipment Serial Number"
         verbose_name_plural = "Equipment Serial Numbers"
 
+
 @admin.register(EquipmentSerialProxy)
 class EquipmentSerialAdmin(admin.ModelAdmin):
     list_display = [
@@ -401,11 +411,11 @@ class EquipmentSerialAdmin(admin.ModelAdmin):
         "equipment_location",
         "is_backup_equipment",
     ]
-    search_fields = ('serial_number', 'equipment__name')
+    search_fields = ("serial_number", "equipment__name")
     list_filter = (
-        'equipment__location',
-        'equipment__production_type',
-        'equipment__category',
+        "equipment__location",
+        "equipment__production_type",
+        "equipment__category",
     )
 
     @admin.display(description="Location")

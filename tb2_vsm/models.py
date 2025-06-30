@@ -269,7 +269,7 @@ class Equipment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.name or self.category
 
 
 class EquipmentSerial(models.Model):
