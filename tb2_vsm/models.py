@@ -277,6 +277,7 @@ class EquipmentSerial(models.Model):
         "Equipment", on_delete=models.CASCADE, related_name="serials"
     )
     serial_number = models.CharField(max_length=100, unique=True)
+    notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.serial_number
