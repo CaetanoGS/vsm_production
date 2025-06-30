@@ -410,6 +410,7 @@ class EquipmentSerialAdmin(admin.ModelAdmin):
         "equipment",
         "equipment_location",
         "is_backup_equipment",
+        "notes",
     ]
     search_fields = ("serial_number", "equipment__name")
     list_filter = (
