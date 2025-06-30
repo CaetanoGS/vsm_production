@@ -269,8 +269,7 @@ class Equipment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        serials = ", ".join([s.serial_number for s in self.serials.all()])
-        return f"{self.name or self.category} ({serials})"
+        return self.name
 
 
 class EquipmentSerial(models.Model):

@@ -402,6 +402,11 @@ class EquipmentSerialAdmin(admin.ModelAdmin):
         "is_backup_equipment",
     ]
     search_fields = ('serial_number', 'equipment__name')
+    list_filter = (
+        'equipment__location',
+        'equipment__production_type',
+        'equipment__category',
+    )
 
     @admin.display(description="Location")
     def equipment_location(self, obj):
