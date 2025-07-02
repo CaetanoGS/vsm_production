@@ -82,6 +82,7 @@ class Process(models.Model):
     """Represents a production process."""
 
     name = models.CharField(max_length=100, null=True, blank=True, default=None)
+    order = models.IntegerField(null=True, blank=True, default=None)
 
     def __str__(self):
         return self.name or "Unnamed Process"
@@ -103,6 +104,9 @@ class Process(models.Model):
             step.output_per_hour for step in steps if step.output_per_hour is not None
         ]
         return min(output_per_hour) if output_per_hour else Decimal("0.00")
+
+    class Meta:
+        ordering = ["order"]
 
 
 class Step(models.Model):

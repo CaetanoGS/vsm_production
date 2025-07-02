@@ -136,7 +136,7 @@ class StepAdmin(admin.ModelAdmin):
             lines.append(f'P_{index}_{j}["{prod_label}"]')
             lines.append(f"L_{index} --> P_{index}_{j}")
 
-            for k, proc in enumerate(prod.processes.all(), 1):
+            for k, proc in enumerate(prod.processes.all().order_by("order"), 1):
                 proc_ops = _val(proc.total_operators)
                 proc_ct = _val(proc.average_cycle_time)
                 proc_min = _val(proc.minimum_output_per_hour)
@@ -273,8 +273,9 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
 
 @admin.register(Process)
 class ProcessAdmin(admin.ModelAdmin):
-    list_display = ["name", "production_lines", "locations"]
+    list_display = ["order", "name", "production_lines", "locations"]
     list_filter = ["toniebox_productions"]
+    ordering = ["order"]
 
     def production_lines(self, obj):
         links = []
