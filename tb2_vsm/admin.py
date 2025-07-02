@@ -286,7 +286,7 @@ class LocationFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(toniebox_productions__location__id=self.value())
+            return queryset.filter(toniebox_productions__location__id=self.value()).distinct()
         return queryset
 
 
