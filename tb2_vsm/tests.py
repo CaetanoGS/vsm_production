@@ -73,6 +73,15 @@ class ProcessModelTests(TestCase):
         Step.objects.create(process=self.process, name="Step 3", cycle_time=90)
 
         self.assertEqual(self.process.minimum_output_per_hour(), Decimal("30.00"))
+        
+    def test_default_ordering_by_order_field(self):
+        p1 = Process.objects.create(name="Process 1", order=2)
+        p2 = Process.objects.create(name="Process 2", order=1)
+        p3 = Process.objects.create(name="Process 3", order=3)
+
+        processes = list(Process.objects.filter(id__in=[p1.id, p2.id, p3.id]).order_by('order'))
+
+        self.assertEqual(processes, [p2, p1, p3])
 
 
 class TonieboxProductionModelTests(TestCase):
