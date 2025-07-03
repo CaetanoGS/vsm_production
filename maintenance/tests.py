@@ -39,7 +39,7 @@ class MaintenanceModelTest(TestCase):
             next_maintenance_day=self.next_maintenance,
             status="on_track",
         )
-        self.assertEqual(maintenance.next_maintenance_in_days(), 60)
+        self.assertEqual(maintenance.next_maintenance_in_days(), 30)
 
     def test_is_expired_true(self):
         expired_maintenance = Maintenance.objects.create(

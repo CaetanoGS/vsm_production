@@ -1,7 +1,7 @@
 from django.db import models
 
 from tb2_vsm.models import Equipment
-from datetime import date, timedelta
+from datetime import date
 
 
 class Maintenance(models.Model):
@@ -23,8 +23,8 @@ class Maintenance(models.Model):
         return f"{self.equipment.name} - {self.status}"
 
     def next_maintenance_in_days(self):
-        if self.next_maintenance_day and self.last_maintenance_day:
-            return (self.next_maintenance_day - self.last_maintenance_day).days
+        if self.next_maintenance_day:
+            return (self.next_maintenance_day - date.today()).days
         return None
 
     def is_expired(self):
