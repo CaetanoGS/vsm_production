@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:15
     container_name: postgres_vsm
-    restart: always
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
@@ -15,6 +15,7 @@ services:
   web:
     build: .
     container_name: django_vsm
+    restart: unless-stopped
     command: sh -c "/entrypoint.sh"
     volumes:
       - .:/app
