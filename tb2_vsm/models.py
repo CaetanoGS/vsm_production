@@ -12,22 +12,24 @@ class TonieboxProduction(models.Model):
     TONIES = "Tonies"
     BOOK_TONIES = "Book Tonies"
     CLEVER_TONIES = "Clever Tonies"
-    DISK = "Disk"
+    DISC = "Disc"
     CONTROLLER = "Controller"
     NIGHT_LIGHT = "Night Light"
     SOFT_TONIES = "Soft Tonies"
+    TAG_CARDS = "Tag Cards"
     OTHER = "Other"
-
+    
     CATEGORY_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
         (TONIEBOX_2, "Toniebox 2"),
         (TONIES, "Tonies"),
         (BOOK_TONIES, "Book Tonies"),
         (CLEVER_TONIES, "Clever Tonies"),
-        (DISK, "Disk"),
+        (DISC, "Disc"),
         (CONTROLLER, "Controller"),
         (SOFT_TONIES, "Soft Tonies"),
         (NIGHT_LIGHT, "Night Light"),
+        (TAG_CARDS, "Tag Cards"),
         (OTHER, "Other"),
     ]
 
@@ -235,10 +237,11 @@ class Equipment(models.Model):
     TONIES = "Tonies"
     BOOK_TONIES = "Book Tonies"
     CLEVER_TONIES = "Clever Tonies"
-    DISK = "Disk"
+    DISC = "Disc"
     CONTROLLER = "Controller"
     NIGHT_LIGHT = "Night Light"
     SOFT_TONIES = "Soft Tonies"
+    TAG_CARDS = "Tag Cards"
 
     PRODUCTION_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
@@ -246,10 +249,11 @@ class Equipment(models.Model):
         (TONIES, "Tonies"),
         (BOOK_TONIES, "Book Tonies"),
         (CLEVER_TONIES, "Clever Tonies"),
-        (DISK, "Disk"),
+        (DISC, "Disc"),
         (CONTROLLER, "Controller"),
         (NIGHT_LIGHT, "Night Light"),
         (SOFT_TONIES, "Soft Tonies"),
+        (TAG_CARDS, "Tag Cards"),
         (OTHER, "Other"),
     ]
 
