@@ -272,8 +272,8 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
 
 
 class LocationFilter(SimpleListFilter):
-    title = 'location'
-    parameter_name = 'location'
+    title = "location"
+    parameter_name = "location"
 
     def lookups(self, request, model_admin):
         locations = set()
@@ -286,14 +286,19 @@ class LocationFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(toniebox_productions__location__id=self.value()).distinct()
+            return queryset.filter(
+                toniebox_productions__location__id=self.value()
+            ).distinct()
         return queryset
 
 
 @admin.register(Process)
 class ProcessAdmin(admin.ModelAdmin):
     list_display = ["order", "name", "production_lines", "locations"]
-    list_filter = ["toniebox_productions", LocationFilter,]
+    list_filter = [
+        "toniebox_productions",
+        LocationFilter,
+    ]
     ordering = ["order"]
 
     def production_lines(self, obj):

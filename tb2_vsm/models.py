@@ -18,7 +18,7 @@ class TonieboxProduction(models.Model):
     SOFT_TONIES = "Soft Tonies"
     TAG_CARDS = "Tag Cards"
     OTHER = "Other"
-    
+
     CATEGORY_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
         (TONIEBOX_2, "Toniebox 2"),
@@ -123,7 +123,9 @@ class Step(models.Model):
     output_per_hour = models.DecimalField(
         max_digits=6, decimal_places=2, null=True, blank=True, default=None
     )
-    order = models.PositiveIntegerField(null=True, blank=True, default=None)
+    order = models.DecimalField(
+        max_digits=6, decimal_places=2, null=True, blank=True, default=None
+    )
     process = models.ForeignKey(
         Process,
         on_delete=models.SET_NULL,
