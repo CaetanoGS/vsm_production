@@ -1,7 +1,6 @@
 import os
 import google.generativeai as genai
 from django.contrib import admin
-from django.http import JsonResponse
 from django.urls import path
 from django.template.response import TemplateResponse
 from .models import (
@@ -26,7 +25,7 @@ from django import forms
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
-genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 admin.site.site_header = "PSM Production Hub"
 admin.site.site_title = "PSM Production Hub"
@@ -266,95 +265,126 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('setup-production-tool/', self.admin_site.admin_view(self.production_setup_tool_view), name='setup_production_tool'),
-            path('production-report/<int:location_id>/<str:category>/', 
-                self.admin_site.admin_view(self.production_report_view), 
-                name='production_report'),
-            path('get-step-suggestion/<int:step_id>/', 
-                 self.admin_site.admin_view(self.get_step_suggestion_view), 
-                 name='get_step_suggestion'),
+            path(
+                "setup-production-tool/",
+                self.admin_site.admin_view(self.production_setup_tool_view),
+                name="setup_production_tool",
+            ),
+            path(
+                "production-report/<int:location_id>/<str:category>/",
+                self.admin_site.admin_view(self.production_report_view),
+                name="production_report",
+            ),
+            path(
+                "get-step-suggestion/<int:step_id>/",
+                self.admin_site.admin_view(self.get_step_suggestion_view),
+                name="get_step_suggestion",
+            ),
         ]
         return custom_urls + urls
-    
+
     def production_setup_tool_view(self, request):
-        if request.method == 'POST':
+        if request.method == "POST":
             form = ProductionSetupForm(request.POST)
             if form.is_valid():
-                category = form.cleaned_data['category']
-                location = form.cleaned_data['location']
+                category = form.cleaned_data["category"]
+                location = form.cleaned_data["location"]
                 return redirect(
-                'admin:production_report', 
-                location_id=location.id, 
-                category=category
-            )
+                    "admin:production_report",
+                    location_id=location.id,
+                    category=category,
+                )
         else:
             form = ProductionSetupForm()
 
         context = {
             **self.admin_site.each_context(request),
-            'title': "Production Setup Tool",
-            'form': form,
-            'opts': self.model._meta,
+            "title": "Production Setup Tool",
+            "form": form,
+            "opts": self.model._meta,
         }
-        return render(request, 'admin/setup_production.html', context)     
-    
+        return render(request, "admin/setup_production.html", context)
+
     def get_step_suggestion_view(self, request, step_id):
         import google.generativeai as genai
         import os
         from django.http import JsonResponse
 
         try:
-            api_key = os.getenv('GEMINI_API_KEY')
+            api_key = os.getenv("GEMINI_API_KEY")
             if not api_key:
-                return JsonResponse({'error': 'Configurarion Error: GEMINI_API_KEY not found .env'}, status=500)
+                return JsonResponse(
+                    {"error": "Configurarion Error: GEMINI_API_KEY not found .env"},
+                    status=500,
+                )
 
             step = Step.objects.get(id=step_id)
-            
+
+            if not step.description or not step.description.strip():
+                return JsonResponse(
+                    {
+                        "error": "Step description is required to generate AI suggestions."
+                    },
+                    status=400,
+                )
+
             genai.configure(api_key=api_key)
 
             model = genai.GenerativeModel("models/gemini-2.5-flash")
-            
-            prompt = (
-            f"Analyze industrial step '{step.name}': {step.description}. "
-            "Provide a 2-sentence technical suggestion in English to reduce cycle time."
-        )
-            
-            response = model.generate_content(prompt)
-            
-            if not response.parts:
-             return JsonResponse({'error': 'Gemini blocked the response due to safety filters.'}, status=500)
 
-            return JsonResponse({'suggestion': response.text})
-            
+            prompt = (
+                f"Evaluate industrial step '{step.name}' which takes {step.cycle_time}s. "
+                f"Task description: {step.description}. "
+                "Provide a concise, technically specific recommendation in English to reduce cycle time, "
+                "based strictly on globally recognized industrial standards (Lean, Kaizen). "
+                "Analyze if the time spent is consistent with the described movements. "
+                "Focus on measurable actions, ergonomics, or tooling changes. Limit to two sentences."
+            )
+
+            response = model.generate_content(prompt)
+
+            if not response.parts:
+                return JsonResponse(
+                    {"error": "Gemini blocked the response due to safety filters."},
+                    status=500,
+                )
+
+            return JsonResponse({"suggestion": response.text})
+
         except Step.DoesNotExist:
-            return JsonResponse({'error': 'Step not found.'}, status=404)
+            return JsonResponse({"error": "Step not found."}, status=404)
         except Exception as e:
-            # Se continuar dando erro 404, o print abaixo mostrará se o problema é o nome do modelo
             print(f"DEBUG GEMINI ERROR: {str(e)}")
-            return JsonResponse({'error': f'Gemini Error: {str(e)}'}, status=500)
-    
+            return JsonResponse({"error": f"Gemini Error: {str(e)}"}, status=500)
+
     def production_report_view(self, request, location_id, category):
-        location_data = Location.objects.filter(id=location_id).prefetch_related(
-            'toniebox_productions',
-            'toniebox_productions__processes',
-            'toniebox_productions__processes__steps'
-        ).first()
+        location_data = (
+            Location.objects.filter(id=location_id)
+            .prefetch_related(
+                "toniebox_productions",
+                "toniebox_productions__processes",
+                "toniebox_productions__processes__steps",
+            )
+            .first()
+        )
 
         if not location_data:
             messages.error(request, "Location not found.")
-            return redirect('admin:setup_production_tool')
+            return redirect("admin:setup_production_tool")
 
-        filtered_productions = location_data.toniebox_productions.filter(category=category, active=True)
+        filtered_productions = location_data.toniebox_productions.filter(
+            category=category, active=True
+        )
 
         context = {
             **self.admin_site.each_context(request),
-            'title': f"Production Report: {category} - {location_data.supplier_name}",
-            'location': location_data,
-            'productions': filtered_productions,
-            'category_name': category,
-            'opts': self.model._meta,
+            "title": f"Production Report: {category} - {location_data.supplier_name}",
+            "location": location_data,
+            "productions": filtered_productions,
+            "category_name": category,
+            "opts": self.model._meta,
         }
-        return render(request, 'admin/production_report.html', context)
+        return render(request, "admin/production_report.html", context)
 
     def get_fields(self, request, obj=None):
         """Hide name field when creating, show when editing"""
@@ -559,14 +589,15 @@ class ProductionSetupForm(forms.Form):
     """
     Form to handle category and location selection within the admin.
     """
+
     category = forms.ChoiceField(
         choices=TonieboxProduction.CATEGORY_CHOICES,
         label="Product Category",
-        widget=forms.Select(attrs={'style': 'width: 300px;'})
+        widget=forms.Select(attrs={"style": "width: 300px;"}),
     )
     location = forms.ModelChoiceField(
         queryset=Location.objects.filter(active=True),
         label="Production Location",
         empty_label="--- Select a Location ---",
-        widget=forms.Select(attrs={'style': 'width: 300px;'})
+        widget=forms.Select(attrs={"style": "width: 300px;"}),
     )

@@ -10,6 +10,11 @@ from tb2_vsm.models import (
     Equipment,
 )
 from django_countries.fields import Country
+from unittest.mock import patch, MagicMock
+from django.urls import reverse
+from django.contrib.auth.models import User
+from django.test import TestCase, Client
+from tb2_vsm.models import Step, Process
 
 
 class LocationModelTests(TestCase):
@@ -219,3 +224,73 @@ class EquipmentModelTests(TestCase):
             quantity=5,
         )
         self.assertEqual(eq_custom.quantity, 5)
+
+
+class GeminiIntegrationTests(TestCase):
+    def setUp(self):
+        # Setup básico: Usuário admin para acessar a view
+        self.admin_user = User.objects.create_superuser(
+            username="admin", email="admin@test.com", password="password"
+        )
+        self.client = Client()
+        self.client.login(username="admin", password="password")
+
+        # Criar hierarquia mínima
+        self.process = Process.objects.create(name="Assembly")
+        self.step = Step.objects.create(
+            name="Solder Component",
+            description="Use soldering iron to attach the chip.",
+            cycle_time=45.00,
+            process=self.process,
+        )
+
+        # URL da View (ajuste conforme o nome registrado no admin)
+        self.url = reverse(
+            "admin:get_step_suggestion", kwargs={"step_id": self.step.id}
+        )
+
+    @patch("google.generativeai.GenerativeModel")
+    def test_get_step_suggestion_success(self, mock_model_class):
+        """Testa se a sugestão é retornada corretamente quando a API responde."""
+        # Configurar o Mock do Gemini
+        mock_model = MagicMock()
+        mock_response = MagicMock()
+        mock_response.text = "Suggestion: Use a soldering jig to improve speed."
+        mock_model.generate_content.return_value = mock_response
+        mock_model_class.return_value = mock_model
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(
+            str(response.content, encoding="utf8"),
+            {"suggestion": "Suggestion: Use a soldering jig to improve speed."},
+        )
+
+    def test_get_step_suggestion_no_description(self):
+        """Testa se a view barra chamadas para passos sem descrição."""
+        self.step.description = ""
+        self.step.save()
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("description is required", response.json()["error"])
+
+    def test_get_step_suggestion_not_found(self):
+        """Testa erro 404 para ID de Step inexistente."""
+        invalid_url = reverse("admin:get_step_suggestion", kwargs={"step_id": 9999})
+        response = self.client.get(invalid_url)
+        self.assertEqual(response.status_code, 404)
+
+    @patch("google.generativeai.GenerativeModel")
+    def test_get_step_suggestion_api_failure(self, mock_model_class):
+        """Testa como o sistema lida com uma falha na API do Google."""
+        mock_model = MagicMock()
+        mock_model.generate_content.side_effect = Exception("API Key Expired")
+        mock_model_class.return_value = mock_model
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("API Key Expired", response.json()["error"])
