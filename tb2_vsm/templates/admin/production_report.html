@@ -1,0 +1,212 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <table style="width:100%; margin-bottom: 20px;">
+            <tr style="background: #f8f8f8;">
+                <td style="padding: 15px;">
+                    <strong>Location:</strong> {{ location.supplier_name }} ({{ location.country.name }})<br>
+                    <strong>Category:</strong> {{ category_name }}
+                </td>
+                <td style="text-align: right; padding: 15px;">
+                    <button onclick="window.print()" class="button">Save Report as PDF</button>
+                </td>
+            </tr>
+        </table>
+
+        {% for production in productions %}
+        <div class="results" style="border: 1px solid #ccc; margin-bottom: 30px; border-radius: 8px; overflow: hidden;">
+            <div style="background: #417690; color: white; padding: 10px 15px;">
+                <h2 style="margin:0; color: white;">Production: {{ production.name|default:"Unnamed Production" }}</h2>
+            </div>
+
+            <div style="padding: 15px;">
+                <p>
+                    <strong>Total Operators:</strong> {{ production.total_operators }} |
+                    <strong>Avg Cycle Time:</strong> {{ production.average_cycle_time }}s |
+                    <strong>Min Output/h:</strong> {{ production.minimum_output_per_hour }}
+                </p>
+
+                {% for process in production.processes.all %}
+                <div style="margin-left: 20px; border-left: 3px solid #79aec8; padding-left: 15px; margin-top: 20px;">
+                    <h3>Process: {{ process.name }} (Order: {{ process.order }})</h3>
+
+                    {% with process_avg=process.average_cycle_time %}
+
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr style="background: #eee; text-align: left;">
+                                <th style="padding: 8px; border: 1px solid #ddd;">Step Name</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Cycle Time</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Operators</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Output/h</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Efficiency Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for step in process.steps.all %}
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ step.name }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ step.cycle_time }}s</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ step.amount_of_operators }}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{{ step.output_per_hour }}</td>
+                                <td
+                                    style="padding: 8px; border: 1px solid #ddd; font-size: 0.9em; vertical-align: top;">
+                                    {% if step.description %}
+                                    {{ step.description|linebreaksbr }}
+                                    {% else %}
+                                    <span style="color: #bbb;">- No description -</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">
+                                    {% if step.cycle_time > process_avg %}
+                                    <strong style="color: red;">⚠️ Potential Fixes</strong>
+
+                                    {% if step.description %}
+                                    <div style="margin-top: 10px;">
+                                        <button type="button" onclick="getAiSuggestion({{ step.id }})"
+                                            id="btn-ai-{{ step.id }}"
+                                            style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em;">
+                                            ✨ Ask Gemini AI
+                                        </button>
+                                        <p id="ai-text-{{ step.id }}"
+                                            style="margin-top: 10px; font-style: italic; color: #555; font-size: 0.9em; display: none;">
+                                        </p>
+                                    </div>
+                                    {% else %}
+                                    <div style="margin-top: 5px; font-size: 0.8em; color: #666;">
+                                        <em>AI insight unavailable: missing step description.</em>
+                                    </div>
+                                    {% endif %}
+
+                                    {% else %}
+                                    <span style="color: green;">✅ No action needed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="padding: 8px; color: #999;">No steps found for this process.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% endwith %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <p style="padding: 20px; background: #fffbe6; border: 1px solid #ffe58f;">No active productions found for this
+            selection.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+    window.getAiSuggestion = function (stepId) {
+        const textElement = document.getElementById(`ai-text-${stepId}`);
+        const btn = document.getElementById(`btn-ai-${stepId}`);
+
+        if (!textElement || !btn) return;
+
+        btn.innerText = "Thinking...";
+        btn.disabled = true;
+        textElement.style.display = "block";
+        textElement.innerText = "Connecting to Gemini AI...";
+
+        // CAMINHO ABSOLUTO: /admin/app_label/model_name/get-step-suggestion/ID/
+        // Isso garante que ele não tente concatenar com a URL do relatório atual
+        fetch(`/admin/tb2_vsm/tonieboxproduction/get-step-suggestion/${stepId}/`)
+            .then(response => {
+                // Se o Django redirecionar para o login ou erro, o response.ok será falso
+                if (!response.ok) {
+                    throw new Error('Server returned an error. Check if you are logged in.');
+                }
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Invalid response format from server.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.suggestion) {
+                    textElement.innerText = data.suggestion;
+                    btn.style.display = "none";
+                } else {
+                    textElement.innerText = "Error: " + (data.error || "Unknown error");
+                    btn.innerText = "Try again";
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                textElement.innerText = "Failed: " + error.message;
+                btn.innerText = "Try again";
+                btn.disabled = false;
+            });
+    };
+</script>
+
+<style>
+    @media print {
+
+        /* Configura a página para A4 Paisagem */
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+
+        /* Garante que as cores de fundo apareçam (Compatibilidade total) */
+        body,
+        .results,
+        div,
+        td,
+        th {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            /* Safari e Chrome antigo */
+        }
+
+        /* Esconde elementos que não devem sair no PDF */
+        #header,
+        .breadcrumbs,
+        .nav-sidebar,
+        .button,
+        button,
+        #changelist-filter,
+        .ai-btn-container {
+            display: none !important;
+        }
+
+        /* Ajusta o layout para ocupar 100% da folha */
+        #content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+
+        .results {
+            border: 1px solid #ccc !important;
+            margin-bottom: 20px !important;
+            page-break-inside: avoid;
+            /* Evita quebrar uma tabela no meio */
+        }
+
+        /* Melhora o contraste da fonte no PDF */
+        body {
+            background-color: white !important;
+            color: black !important;
+            font-size: 10pt;
+        }
+
+        h2,
+        h3 {
+            color: #417690 !important;
+        }
+    }
+</style>
+{% endblock %}

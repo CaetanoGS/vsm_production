@@ -1,0 +1,51 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; Production Setup Tool
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form method="post">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            <h2>Select Production Parameters</h2>
+            {% for field in form %}
+            <div class="form-row">
+                {{ field.errors }}
+                <div>
+                    <label class="required" style="font-weight: bold; width: 160px; display: inline-block;">
+                        {{ field.label }}:
+                    </label>
+                    {{ field }}
+                </div>
+            </div>
+            {% endfor %}
+        </fieldset>
+
+        <div class="submit-row" style="text-align: left;">
+            <input type="submit" value="Confirm and Proceed" class="default" style="float: none; margin-right: 10px;">
+            <a href=".." class="closelink">Cancel and Return</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-row {
+        padding: 15px 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    select {
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+</style>
+{% endblock %}
