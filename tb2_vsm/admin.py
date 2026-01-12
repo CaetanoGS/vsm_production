@@ -330,7 +330,7 @@ class TonieboxProductionAdmin(admin.ModelAdmin):
 
             genai.configure(api_key=api_key)
 
-            model = genai.GenerativeModel("models/gemini-2.5-flash")
+            model = genai.GenerativeModel("models/gemini-2.0-flash")
 
             prompt = (
                 f"Evaluate industrial step '{step.name}' which takes {step.cycle_time}s. "

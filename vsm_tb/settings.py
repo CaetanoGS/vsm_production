@@ -156,3 +156,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", None)
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://production-overview-1.eu-central-1.dev.tms.toys",
+]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
