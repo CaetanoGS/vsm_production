@@ -96,8 +96,8 @@ class Process(models.Model):
         return self.name or "Unnamed Process"
 
     def total_operators(self):
-        """Calculates the total number of operators for all steps in the process."""
-        return sum(step.amount_of_operators for step in self.steps.all())
+        return sum((step.amount_of_operators or 0) for step in self.steps.all())
+
 
     def average_cycle_time(self):
         """Calculates the average cycle time across all steps in the process."""
