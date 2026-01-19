@@ -29,6 +29,7 @@ class BackupEquipment(models.Model):
 
     TONIEBOX_1 = "Toniebox 1"
     TONIEBOX_2 = "Toniebox 2"
+    TONIEBOX_2_G2 = "Toniebox 2 G2"
     TMS = "TMS"
     MTS = " MTS"
     TMES = "TMES"
@@ -37,6 +38,7 @@ class BackupEquipment(models.Model):
     CATEGORY_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
         (TONIEBOX_2, "Toniebox 2"),
+        (TONIEBOX_2_G2, "Toniebox 2 G2"),
         (MTS, "MTS"),
         (TMS, "TMS"),
         (TMES, "TMES"),

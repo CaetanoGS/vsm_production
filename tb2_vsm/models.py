@@ -9,6 +9,7 @@ class TonieboxProduction(models.Model):
 
     TONIEBOX_1 = "Toniebox 1"
     TONIEBOX_2 = "Toniebox 2"
+    TONIEBOX_2_G2 = "Toniebox 2 G2"
     TONIES = "Tonies"
     BOOK_TONIES = "Book Tonies"
     CLEVER_TONIES = "Clever Tonies"
@@ -22,6 +23,7 @@ class TonieboxProduction(models.Model):
     CATEGORY_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
         (TONIEBOX_2, "Toniebox 2"),
+        (TONIEBOX_2_G2, "Toniebox 2 G2"),
         (TONIES, "Tonies"),
         (BOOK_TONIES, "Book Tonies"),
         (CLEVER_TONIES, "Clever Tonies"),
@@ -236,6 +238,7 @@ class Equipment(models.Model):
 
     TONIEBOX_1 = "Toniebox 1"
     TONIEBOX_2 = "Toniebox 2"
+    TONIEBOX_2_G2 = "Toniebox 2 G2"
     TONIES = "Tonies"
     BOOK_TONIES = "Book Tonies"
     CLEVER_TONIES = "Clever Tonies"
@@ -248,6 +251,7 @@ class Equipment(models.Model):
     PRODUCTION_CHOICES = [
         (TONIEBOX_1, "Toniebox 1"),
         (TONIEBOX_2, "Toniebox 2"),
+        (TONIEBOX_2_G2, "Toniebox 2 G2"),
         (TONIES, "Tonies"),
         (BOOK_TONIES, "Book Tonies"),
         (CLEVER_TONIES, "Clever Tonies"),
