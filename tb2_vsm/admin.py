@@ -487,8 +487,9 @@ class LocationAdmin(admin.ModelAdmin):
     def total_operators(self, obj):
         total = 0
         for production in obj.toniebox_productions.filter(active=True):
-            total += production.total_operators()
+            total += production.total_operators() or 0
         return total
+
 
     total_operators.short_description = "Total Operators (Active Lines Only)"
 

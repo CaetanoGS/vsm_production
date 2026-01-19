@@ -59,7 +59,11 @@ class TonieboxProduction(models.Model):
         return self.name or f"Toniebox Production {self.id}"
 
     def total_operators(self):
-        return sum(process.total_operators() for process in self.processes.all())
+        total = 0
+        for process in self.processes.all():
+            total += process.total_operators() or 0
+        return total
+
 
     def average_cycle_time(self):
         steps = [
