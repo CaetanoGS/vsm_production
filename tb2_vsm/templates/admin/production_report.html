@@ -29,9 +29,10 @@
 
                 {% for process in production.processes.all %}
                 <div style="margin-left: 20px; border-left: 3px solid #79aec8; padding-left: 15px; margin-top: 20px;">
-                    <h3>Process: {{ process.name|default:"Unnamed Process" }} Total Operators: {{
-                        process.total_operators }} Avg Cycle Time: {{ process.average_cycle_time }}s  Order: {{
-                        process.order }}</h3>
+
+                    <h3>Process: {{ process.name }} (Order: {{ process.order }})</h3>
+                    <h3>Total Operators: {{process.total_operators }} Avg Cycle Time: {{ process.average_cycle_time }}s
+                    </h3>
 
                     {% with process_avg=process.average_cycle_time %}
 
