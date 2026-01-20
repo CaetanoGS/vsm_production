@@ -490,7 +490,6 @@ class LocationAdmin(admin.ModelAdmin):
             total += production.total_operators() or 0
         return total
 
-
     total_operators.short_description = "Total Operators (Active Lines Only)"
 
 

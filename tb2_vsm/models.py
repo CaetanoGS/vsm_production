@@ -64,7 +64,6 @@ class TonieboxProduction(models.Model):
             total += process.total_operators() or 0
         return total
 
-
     def average_cycle_time(self):
         steps = [
             step for process in self.processes.all() for step in process.steps.all()
@@ -97,7 +96,6 @@ class Process(models.Model):
 
     def total_operators(self):
         return sum((step.amount_of_operators or 0) for step in self.steps.all())
-
 
     def average_cycle_time(self):
         """Calculates the average cycle time across all steps in the process."""
